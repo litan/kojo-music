@@ -1,2 +1,1 @@
-# kojo-music
-Music in Kojo!
+Experiments in Music with Kojo...
