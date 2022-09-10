@@ -12,6 +12,8 @@ The basic goals of the project (subject to refinement as we go along) are to:
 
 kojo-music uses Alda (https://alda.io) as its music server (see music server [source code](https://github.com/litan/alda/tree/master/player)).
 
+kojo-music also uses the [FluidR3 soundfont](https://repo1.maven.org/maven2/org/bitbucket/daveyarwood/fluid-r3/0.1.1/fluid-r3-0.1.1.jar).
+
 Below is a screenshot of the music workbench. And [here's a video](https://vimeo.com/748282140) of a tune playing in the workbench.
 
 ![Kojo Workbench](doc/kojo-music-workbench.png)
