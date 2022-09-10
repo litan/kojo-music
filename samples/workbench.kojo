@@ -309,7 +309,7 @@ def nonBlankLines(lines: Seq[PhraseLine]): Seq[PhraseLine] =
     }
 
 def exportButton: Button = Button("Export") {
-    println("Coming soon (code that plays the current score)")
+    println("Coming soon (code that plays the current score)...")
 }
 
 def updateSoundfontButton = {
@@ -407,4 +407,3 @@ def ui = picRowCentered(controls, Picture.hgap(20), scorePicMaker)
 
 var currentUi = ui
 drawCentered(currentUi)
-println("If you run this program again while some music is playing, you will have to restart Kojo to stop the music that is playing from the previous run. So stop any playing music before re-running this program!")
