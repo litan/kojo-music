@@ -1,7 +1,3 @@
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-
 import net.kogics.kojo.music._
 
 // toggleFullScreenCanvas()
@@ -407,3 +403,4 @@ def ui = picRowCentered(controls, Picture.hgap(20), scorePicMaker)
 
 var currentUi = ui
 drawCentered(currentUi)
+println("If the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (ignore any socket errors while bringing it down).")
