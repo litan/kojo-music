@@ -4,6 +4,7 @@ The basic goals of the project (subject to refinement as we go along) are to:
 * Get children going with composing nice sounding music via an easy to use (GUI based) [music workbench](samples/workbench.kojo), and in the process learn basic music theory.
 * Enable the export of the code behind the music from the workbench - to get children familiar with how the music (in the workbench) is related to the code that generates it.
 * Get children coding with declarative music.
+* Provide children an exciting area (i.e. music) to apply math and play with mathematical ideas - as they compose, generate, and play music.
 * Support both [Indian swaras](samples/examples/ons.kojo) and [Western notes](samples/examples/score1.kojo).
 * Enable the creation of [infinitely long generative music](samples/examples/score_dyn.kojo).
 * Provide rich support for generative music with ragas (coming soon).
