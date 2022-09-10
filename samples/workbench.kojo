@@ -403,4 +403,4 @@ def ui = picRowCentered(controls, Picture.hgap(20), scorePicMaker)
 
 var currentUi = ui
 drawCentered(currentUi)
-println("If the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (ignore any socket errors while bringing it down).")
+println("Note - if the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (and ignore any socket errors while bringing it down). It should work fine after that...")
