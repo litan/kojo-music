@@ -1,4 +1,4 @@
-Experiments in Music with Kojo...
+Experiments in Music with [Kojo](https://www.kojo.in)...
 
 The basic goals of the project (subject to refinement as we go along) are to:
 * Get children going with composing nice sounding music via an easy to use (GUI based) [music workbench](samples/workbench.kojo), and in the process learn basic music theory.
@@ -9,7 +9,7 @@ The basic goals of the project (subject to refinement as we go along) are to:
 * Provide rich support for generative music with ragas (coming soon).
 * Provide support for live-coding of music (where a new run of a modified program gently modifies the running music)(coming soon).
 
-kojo-music uses Alda (https://alda.io) as its music server.
+kojo-music uses Alda (https://alda.io) as its music server (see music server [source code](https://github.com/litan/alda/tree/master/player)).
 
 Here's a screenshot of the music workbench:
 
