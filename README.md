@@ -1,4 +1,6 @@
-Experiments in Music with [Kojo](https://www.kojo.in)...
+### Experiments in Music with [Kojo](https://www.kojo.in)...
+
+To quickly get going with kojo-music, head on over to the [Release](https://github.com/litan/kojo-music/releases/tag/poc) page. 
 
 The basic goals of the project (subject to refinement as we go along) are to:
 * Get children going with composing nice sounding music via an easy to use (GUI based) [music workbench](samples/workbench.kojo), and in the process learning basic music theory.
