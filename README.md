@@ -3,6 +3,8 @@
 To quickly get going with kojo-music, head on over to the [Release](https://github.com/litan/kojo-music/releases/tag/poc) page. 
 
 The basic goals of the project (subject to refinement as we go along) are to:
+* Enable children to have fun with music as creators and composers.
+* Enable children to use their knowledge of coding to create (and learn about) music.
 * Get children going with composing nice sounding music via an easy to use (GUI based) [music workbench](samples/workbench.kojo), and in the process learning basic music theory.
 * Enable the export of the code behind the music from the workbench - to get children familiar with how the music (in the workbench) is related to the code that generates it.
 * Get children coding with declarative music.
