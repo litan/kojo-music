@@ -451,7 +451,6 @@ class Metronome {
             p.setPenThickness(4)
         }
         p.onMousePress { (x, y) =>
-            println(s"Starting at $i")
             stop()
             start(i)
         }
@@ -462,7 +461,8 @@ class Metronome {
         i <- 0 until n
     } yield picMaker(i)
 
-    val tickPics = rowMaker(16)
+    val numTicks = 16
+    val tickPics = rowMaker(numTicks)
 
     val pic = picRowCentered(
         Picture.hgap(100),
@@ -497,7 +497,7 @@ class Metronome {
 
     def start(i: Int) {
         idx = i
-        val rate = currentScore.durationMillis / 16
+        val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
         val tickTask = new Runnable {
             def run(): Unit = {
                 unmarkPic(prevIndex(idx))
@@ -508,14 +508,16 @@ class Metronome {
 
         tickTask.run()
         import java.util.concurrent.TimeUnit
+        val clickLatency = 100
         tickTaskFuture = MusicPlayer.playerTimer
-            .scheduleAtFixedRate(tickTask, rate, rate, TimeUnit.MILLISECONDS)
+            .scheduleAtFixedRate(tickTask, rate - clickLatency, rate, TimeUnit.MILLISECONDS)
     }
 
     def stop() {
         if (tickTaskFuture != null) {
             tickTaskFuture.cancel(false)
             tickTaskFuture = null
+            unmarkPic(prevIndex(idx))
         }
     }
 
