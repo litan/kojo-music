@@ -149,11 +149,11 @@ def currentScore: Score = {
             wbState.linePerc.phrase
         ),
         Part(
-            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
+            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
             nonBlankLines(wbState.lines.take(7)).map(_.phrase): _*
         ),
         Part(
-            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
+            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
             nonBlankLines(wbState.lines.drop(7)).map(_.phrase): _*
         )
     )
@@ -414,8 +414,8 @@ def controlPanel = {
 
     wbState.currRunButton.setEnabled(MusicPlayer.started)
     wbState.currStopButton.setEnabled(false)
-    wbState.currInstrument1Dd.setSelectedItem("Guitar (Nylon)")
-    wbState.currInstrument2Dd.setSelectedItem("Piano")
+    wbState.currInstrument1Dd.setSelectedItem("Piano")
+    wbState.currInstrument2Dd.setSelectedItem("Guitar (Nylon)")
     ColPanel(
         RowPanel(wbState.currRunButton, RowPanel.horizontalGap(10), wbState.currStopButton),
         ColPanel.verticalGap(vertGap),
@@ -424,9 +424,9 @@ def controlPanel = {
         RowPanel(exportButton),
         ColPanel.verticalGap(vertGap * 3),
         ColPanel(
-            RowPanel(Label(" Instrument 1:")),
+            RowPanel(Label(" Top Instrument:")),
             RowPanel(wbState.currInstrument1Dd),
-            RowPanel(Label(" Instrument 2:")),
+            RowPanel(Label(" Bottom Instrument:")),
             RowPanel(wbState.currInstrument2Dd),
             ColPanel.verticalGap(vertGap),
             RowPanel(Label(" Tempo:")),
