@@ -97,13 +97,14 @@ val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
 def line(note: Note) = PhraseLine(note, Seq(bar, bar, bar, bar))
 
 case class UiFields(
-    currMsStartBtnO:    Button,
-    currMsStopBtnO:     Button,
-    currRunButtonO:     Button,
-    currStopButtonO:    Button,
-    currInstrument1DdO: DropDown[String],
-    currInstrument2DdO: DropDown[String],
-    currTempoTfO:       TextField[Int]
+    currMsStartBtn:    Button,
+    currMsStopBtn:     Button,
+    currRunButton:     Button,
+    currStopButton:    Button,
+    currInstrument1Dd: DropDown[String],
+    currInstrument2Dd: DropDown[String],
+    currTempoTf:       TextField[Int],
+    currMLatencyTf:    TextField[Int]
 )
 
 case class WBState(
@@ -111,13 +112,14 @@ case class WBState(
     lines:    Seq[PhraseLine],
     uiFields: Option[UiFields]
 ) {
-    def currMsStartBtn = uiFields.get.currMsStartBtnO
-    def currMsStopBtn = uiFields.get.currMsStopBtnO
-    def currRunButton = uiFields.get.currRunButtonO
-    def currStopButton = uiFields.get.currStopButtonO
-    def currInstrument1Dd = uiFields.get.currInstrument1DdO
-    def currInstrument2Dd = uiFields.get.currInstrument2DdO
-    def currTempoTf = uiFields.get.currTempoTfO
+    def currMsStartBtn = uiFields.get.currMsStartBtn
+    def currMsStopBtn = uiFields.get.currMsStopBtn
+    def currRunButton = uiFields.get.currRunButton
+    def currStopButton = uiFields.get.currStopButton
+    def currInstrument1Dd = uiFields.get.currInstrument1Dd
+    def currInstrument2Dd = uiFields.get.currInstrument2Dd
+    def currTempoTf = uiFields.get.currTempoTf
+    def currMLatencyTf = uiFields.get.currMLatencyTf
 }
 
 var wbState = WBState(
@@ -197,6 +199,7 @@ def runMusic() {
 
     wbState.currRunButton.setEnabled(false)
     wbState.currStopButton.setEnabled(true)
+    metronome.start()
 }
 
 def stopMusic() {
@@ -402,6 +405,7 @@ def controlPanel = {
         DropDown(InstrumentNames.names: _*),
         DropDown(InstrumentNames.names: _*),
         TextField(200),
+        TextField(500),
     )
 
     wbState = wbState.copy(
@@ -426,7 +430,10 @@ def controlPanel = {
             RowPanel(wbState.currInstrument2Dd),
             ColPanel.verticalGap(vertGap),
             RowPanel(Label(" Tempo:")),
-            RowPanel(wbState.currTempoTf)
+            RowPanel(wbState.currTempoTf),
+            ColPanel.verticalGap(vertGap),
+            RowPanel(Label(" Metronome Latency:")),
+            RowPanel(wbState.currMLatencyTf)
         ),
         ColPanel.verticalGap(vertGap * 15),
         RowPanel(updateSoundfontButton),
@@ -449,10 +456,6 @@ class Metronome {
         p.setFillColor(white)
         if (i % 4 == 0) {
             p.setPenThickness(4)
-        }
-        p.onMousePress { (x, y) =>
-            stop()
-            start(i)
         }
         p
     }
@@ -495,7 +498,9 @@ class Metronome {
         n + 1
     }
 
-    def start(i: Int) {
+    def start(): Unit = start(0)
+
+    def start(i: Int): Unit = {
         idx = i
         val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
         val tickTask = new Runnable {
@@ -506,11 +511,14 @@ class Metronome {
             }
         }
 
-        tickTask.run()
         import java.util.concurrent.TimeUnit
-        val clickLatency = 100
         tickTaskFuture = MusicPlayer.playerTimer
-            .scheduleAtFixedRate(tickTask, rate - clickLatency, rate, TimeUnit.MILLISECONDS)
+            .scheduleAtFixedRate(
+                tickTask,
+                wbState.currMLatencyTf.value,
+                rate,
+                TimeUnit.MILLISECONDS
+            )
     }
 
     def stop() {
