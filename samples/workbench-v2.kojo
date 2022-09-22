@@ -104,6 +104,7 @@ case class UiFields(
     currInstrument1Dd: DropDown[String],
     currInstrument2Dd: DropDown[String],
     currTempoTf:       TextField[Int],
+    currMarkBeatsDd:   DropDown[String],
     currMLatencyTf:    TextField[Int]
 )
 
@@ -119,6 +120,7 @@ case class WBState(
     def currInstrument1Dd = uiFields.get.currInstrument1Dd
     def currInstrument2Dd = uiFields.get.currInstrument2Dd
     def currTempoTf = uiFields.get.currTempoTf
+    def currMarkBeatsDd = uiFields.get.currMarkBeatsDd
     def currMLatencyTf = uiFields.get.currMLatencyTf
 }
 
@@ -199,7 +201,9 @@ def runMusic() {
 
     wbState.currRunButton.setEnabled(false)
     wbState.currStopButton.setEnabled(true)
-    metronome.start()
+    if (wbState.currMarkBeatsDd.value == "true") {
+        metronome.start()
+    }
 }
 
 def stopMusic() {
@@ -395,6 +399,7 @@ def updateSoundfontButton = {
 }
 
 val vertGap = 3
+val hGap = 3
 
 def controlPanel = {
     val uif = UiFields(
@@ -405,6 +410,7 @@ def controlPanel = {
         DropDown(InstrumentNames.names: _*),
         DropDown(InstrumentNames.names: _*),
         TextField(200),
+        DropDown("false", "true"),
         TextField(500),
     )
 
@@ -428,14 +434,15 @@ def controlPanel = {
             RowPanel(wbState.currInstrument1Dd),
             RowPanel(Label(" Bottom Instrument:")),
             RowPanel(wbState.currInstrument2Dd),
+            ColPanel.verticalGap(vertGap * 2),
+            RowPanel(Label(" Tempo:"), RowPanel.horizontalGap(hGap), wbState.currTempoTf),
+            ColPanel.verticalGap(vertGap * 5),
+            RowPanel(Label(" Mark Beats:"), RowPanel.horizontalGap(hGap), wbState.currMarkBeatsDd),
             ColPanel.verticalGap(vertGap),
-            RowPanel(Label(" Tempo:")),
-            RowPanel(wbState.currTempoTf),
-            ColPanel.verticalGap(vertGap),
-            RowPanel(Label(" Metronome Latency:")),
+            RowPanel(Label(" Mark Beats Latency:")),
             RowPanel(wbState.currMLatencyTf)
         ),
-        ColPanel.verticalGap(vertGap * 15),
+        ColPanel.verticalGap(vertGap * 5),
         RowPanel(updateSoundfontButton),
         ColPanel.verticalGap(vertGap),
         RowPanel(wbState.currMsStartBtn, RowPanel.horizontalGap(10), wbState.currMsStopBtn),
@@ -528,5 +535,4 @@ class Metronome {
             unmarkPic(prevIndex(idx))
         }
     }
-
 }
