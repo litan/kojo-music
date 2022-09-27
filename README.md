@@ -15,6 +15,7 @@ Digging a little deeper into the above, here are some essential skills that kids
 * Design thinking - by composing a new piece of music for a given situation.
 * Communication skills - by doing live performances using Kojo as a musical instrument. 
 * A Rootedness and Pride in India (for children in India) - by gaining an appreciation for the intricasy and richness of Indian Classical Music, getting familar with Ragas, doing compositions, and getting easy access to traditional learning for Indian Classic Music - for further enrichment of their lives.
+* Computational thinking - by gaining an appreciation for the beauty of the code (and the thinking process behind the code) that allows one to generate intricate pieces of classical music via coding. 
 
 Now continuing with the broad set of goals...
 * Get children going with composing nice sounding music via an easy to use (GUI based) [music workbench](samples/workbench.kojo), and in the process learning basic music theory.
