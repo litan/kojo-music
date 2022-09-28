@@ -40,7 +40,7 @@ object MusicPlayer {
     new InetSocketAddress(InetAddress.getByName(null), port)
 
   def waitForServerUp(): Unit = {
-    Thread.sleep(2500)
+    Thread.sleep(3000)
     var notConnected = true
     val maxTries = 20
     var currTry = 0
@@ -54,11 +54,11 @@ object MusicPlayer {
       } catch {
         case ioe: IOException =>
           currTry += 1
-          println(s"Server is not up yet ($currTry).")
+//          println(s"Server is not up yet ($currTry).")
           if (currTry == maxTries) {
-            println("Giving up.")
+            println("Unable to connect to the server. Giving up.")
           } else {
-            println("Will re-check in a second.")
+//            println("Will re-check in a second.")
           }
           Thread.sleep(1000)
       } finally {
