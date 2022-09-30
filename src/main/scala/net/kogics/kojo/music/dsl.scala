@@ -20,12 +20,15 @@ trait MusicElem {
 
 sealed abstract class Duration {
   import Duration._
-  def quarterNoteToMillis(tempo: Double) = (60000 / tempo).toInt
+  def quarterNoteToMillis(tempo: Double) = math.round(60000 / tempo).toInt
   def toMillis(tempo: Double): Int = this match {
-    case WholeNote                 => quarterNoteToMillis(tempo) * 4
-    case HalfNote                  => quarterNoteToMillis(tempo) * 2
-    case QuarterNote               => quarterNoteToMillis(tempo)
-    case EighthNote                => quarterNoteToMillis(tempo) / 2
+    case WholeNote     => quarterNoteToMillis(tempo) * 4
+    case HalfNote      => quarterNoteToMillis(tempo) * 2
+    case QuarterNote   => quarterNoteToMillis(tempo)
+    case EighthNote    => quarterNoteToMillis(tempo) / 2
+    case SixteenthNote => quarterNoteToMillis(tempo) / 4
+    case NthDuration(denominator) =>
+      math.round(quarterNoteToMillis(tempo) / (denominator / 4)).toInt
     case CompositeDuration(d1, d2) => d1.toMillis(tempo) + d2.toMillis(tempo)
   }
 
@@ -34,6 +37,8 @@ sealed abstract class Duration {
     case HalfNote                  => 0.5
     case QuarterNote               => 0.25
     case EighthNote                => 0.125
+    case SixteenthNote             => 1 / 16.0
+    case NthDuration(denominator)  => 1 / denominator
     case CompositeDuration(d1, d2) => d1.toDecimalForm + d2.toDecimalForm
   }
 
@@ -45,12 +50,29 @@ object Duration {
   case object HalfNote extends Duration
   case object QuarterNote extends Duration
   case object EighthNote extends Duration
+  case object SixteenthNote extends Duration
+  case class NthDuration(denominator: Double) extends Duration
   case class CompositeDuration(d1: Duration, d2: Duration) extends Duration
 
   val w = WholeNote
   val h = HalfNote
   val q = QuarterNote
   val i = EighthNote
+  val ii = SixteenthNote
+  def nthDuration(denominator: Double) = NthDuration(denominator)
+}
+
+object Beat {
+  def apply(
+      pitch: Int,
+      duration: Duration,
+      length: Double,
+      dynamic: Int,
+      pan: Double
+  ): Note = Note(pitch, duration, length, dynamic, pan)
+  def apply(pitch: Int): Note = apply(pitch, Duration.QuarterNote)
+  def apply(pitch: Int, duration: Duration): Note =
+    apply(pitch, duration, 0.9, 127, 0.5)
 }
 
 object Note {
@@ -69,9 +91,26 @@ case class Note(
 
 case class Rest(duration: Duration = Duration.QuarterNote) extends MusicElem
 
+object MultiBeat {
+  def apply(beats: Note*): MultiNote = MultiNote(beats)
+  def apply(beats: collection.Seq[Note]): MultiNote = apply(beats.toSeq: _*)
+}
+
+object MultiNote {
+  def apply(elems: collection.Seq[Note]): MultiNote = MultiNote(elems.toSeq: _*)
+}
+
+case class MultiNote(notes: Note*) extends MusicElem {
+  def duration: Duration = {
+    val durations = notes.map(_.duration)
+    durations.reduce((d1, d2) => Duration.CompositeDuration(d1, d2))
+  }
+}
+
 object Phrase {
   def apply(elems: collection.Seq[MusicElem]): Phrase = Phrase(elems.toSeq: _*)
 }
+
 case class Phrase(elems: MusicElem*) {
   def durationMillis(tempo: Double): Int = elems.foldLeft(0) { (d, e) =>
     d + e.duration.toMillis(tempo)
@@ -96,9 +135,11 @@ object Part {
 }
 
 case class InstrumentPart(instrument: Int, phrases: Phrase*) extends Part
+
 case class PercussionPart(phrases: Phrase*) extends Part {
   val instrument = 0
 }
+
 case class Score(tempo: Double, parts: Part*) {
   def durationMillis: Int = if (parts.length > 0 && parts(0).phrases.length > 0)
     parts(0).phrases(0).durationMillis(tempo)

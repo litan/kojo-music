@@ -44,29 +44,41 @@ object OSCBundleGenerator {
   ): collection.Seq[OSCPacket] = {
     def dEqual(n1: Double, n2: Double, tolerance: Double) =
       (n1 - n2).abs < tolerance
+
     val packets = ArrayBuffer.empty[OSCPacket]
+
+    def addNotePackets(note: Note, offset0: Int): Int = {
+      var offset = offset0
+      if (!dEqual(note.pan, 0.5, 0.01)) {
+        packets.append(
+          message(
+            s"/track/${channel}/midi/panning",
+            Seq(offset, (note.pan * 127).toInt)
+          )
+        )
+      }
+      val packet = noteToOSCPacket(note, channel, offset, tempo)
+      offset += note.duration.toMillis(tempo)
+      packets.append(packet)
+      if (!dEqual(note.pan, 0.5, 0.01)) {
+        packets.append(
+          message(s"/track/${channel}/midi/panning", Seq(offset, 64))
+        )
+      }
+      offset
+    }
+
     phrases.foreach { phrase =>
       var offset = 0
       phrase.elems.foreach {
         case note: Note =>
-          if (!dEqual(note.pan, 0.5, 0.01)) {
-            packets.append(
-              message(
-                s"/track/${channel}/midi/panning",
-                Seq(offset, (note.pan * 127).toInt)
-              )
-            )
-          }
-          val packet = noteToOSCPacket(note, channel, offset, tempo)
-          offset += note.duration.toMillis(tempo)
-          packets.append(packet)
-          if (!dEqual(note.pan, 0.5, 0.01)) {
-            packets.append(
-              message(s"/track/${channel}/midi/panning", Seq(offset, 64))
-            )
-          }
+          offset = addNotePackets(note, offset)
         case rest: Rest =>
           offset += rest.duration.toMillis(tempo)
+        case mn: MultiNote =>
+          mn.notes.foreach { note =>
+            offset = addNotePackets(note, offset)
+          }
       }
       if (phrase.elems.nonEmpty) {
         phrase.elems.last match {
