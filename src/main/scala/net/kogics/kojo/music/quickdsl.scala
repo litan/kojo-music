@@ -464,16 +464,13 @@ object QuickSwara {
 }
 
 object QuickBeat {
-  private def percussion(drum: Int, duration: Duration) =
-    Note(drum, duration, 0.9, 127, 0.5)
+  val pbd_w = Beat(Drum.ACOUSTIC_BASS_DRUM, w)
+  val pbd_h = Beat(Drum.ACOUSTIC_BASS_DRUM, h)
+  val pbd = Beat(Drum.ACOUSTIC_BASS_DRUM, q)
+  val pbd_i = Beat(Drum.ACOUSTIC_BASS_DRUM, i)
 
-  val pbd_w = percussion(Drum.ACOUSTIC_BASS_DRUM, w)
-  val pbd_h = percussion(Drum.ACOUSTIC_BASS_DRUM, h)
-  val pbd = percussion(Drum.ACOUSTIC_BASS_DRUM, q)
-  val pbd_i = percussion(Drum.ACOUSTIC_BASS_DRUM, i)
-
-  val phc_w = percussion(Drum.HAND_CLAP, w)
-  val phc_h = percussion(Drum.HAND_CLAP, h)
-  val phc = percussion(Drum.HAND_CLAP, q)
-  val phc_i = percussion(Drum.HAND_CLAP, i)
+  val phc_w = Beat(Drum.HAND_CLAP, w)
+  val phc_h = Beat(Drum.HAND_CLAP, h)
+  val phc = Beat(Drum.HAND_CLAP, q)
+  val phc_i = Beat(Drum.HAND_CLAP, i)
 }

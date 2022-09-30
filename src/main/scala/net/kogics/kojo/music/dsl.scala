@@ -64,15 +64,15 @@ object Duration {
 
 object Beat {
   def apply(
-      pitch: Int,
+      drumType: Int,
       duration: Duration,
       length: Double,
       dynamic: Int,
       pan: Double
-  ): Note = Note(pitch, duration, length, dynamic, pan)
-  def apply(pitch: Int): Note = apply(pitch, Duration.QuarterNote)
-  def apply(pitch: Int, duration: Duration): Note =
-    apply(pitch, duration, 0.9, 127, 0.5)
+  ): Note = Note(drumType, duration, length, dynamic, pan)
+  def apply(drumType: Int): Note = apply(drumType, Duration.QuarterNote)
+  def apply(drumType: Int, duration: Duration): Note =
+    apply(drumType, duration, 0.9, 127, 0.5)
 }
 
 object Note {
