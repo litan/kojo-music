@@ -22,7 +22,8 @@ package object music {
     MultiNote(
       notes
         .take(notes.length - 1)
-        .map(note => note.copy(length = 1))
+        // change note length to more than duration - for smoother slur
+        .map(note => note.copy(length = 1.1))
         .appended(notes.last)
     )
   }
