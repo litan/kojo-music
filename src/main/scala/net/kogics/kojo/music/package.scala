@@ -9,13 +9,21 @@ package object music {
   }
 
   def tie(notes: Note*): Note = {
-    val first = notes.head
-    val firstPitch = notes.head.pitch
+    val firstNote = notes.head
     require(
-      notes.tail.forall(note => note.pitch == firstPitch),
+      notes.tail.forall(note => note.pitch == firstNote.pitch),
       "All notes in a tie need to have the same pitch"
     )
     val d = durationSum(notes)
-    Note(first.pitch, d, first.length, first.dynamic, first.pan)
+    firstNote.copy(duration = d)
+  }
+
+  def slur(notes: Note*): MusicElem = {
+    MultiNote(
+      notes
+        .take(notes.length - 1)
+        .map(note => note.copy(length = 1))
+        .appended(notes.last)
+    )
   }
 }
