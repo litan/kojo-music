@@ -101,10 +101,7 @@ object MultiNote {
 }
 
 case class MultiNote(notes: Note*) extends MusicElem {
-  def duration: Duration = {
-    val durations = notes.map(_.duration)
-    durations.reduce((d1, d2) => Duration.CompositeDuration(d1, d2))
-  }
+  def duration: Duration = durationSum(notes)
 }
 
 object Phrase {

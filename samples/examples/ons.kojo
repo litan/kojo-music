@@ -2,7 +2,7 @@
 
 cleari()
 
-val re_wq = Note(SwaraPitch.Re, w + q, 1, 127, 0.5)
+val re_wq = Note(SwaraPitch.Re, w + q)
 
 val notes = Phrase(
     re_w, sa, r, re, r_h, ga_komal, re_wq, re, r_w
