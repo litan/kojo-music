@@ -20,11 +20,12 @@ package object music {
 
   def slur(notes: Note*): MusicElem = {
     MultiNote(
-      notes
+      notes.view
         .take(notes.length - 1)
         // change note length to more than duration - for smoother slur
         .map(note => note.copy(length = 1.1))
         .appended(notes.last)
+        .toSeq
     )
   }
 }

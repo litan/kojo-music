@@ -124,8 +124,11 @@ sealed abstract class Part {
 }
 
 object Part {
-  def apply(instrument: Int, phrases: Phrase*) =
+  def apply(instrument: Int, phrases: Phrase*): Part =
     InstrumentPart(instrument, phrases: _*)
+
+  def apply(instrument: Int, phrases: collection.Seq[Phrase]): Part =
+    apply(instrument, phrases.toSeq: _*)
 
   def percussion(phrases: Phrase*) =
     PercussionPart(phrases: _*)
