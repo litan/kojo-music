@@ -152,11 +152,11 @@ def currentScore: Score = {
         ),
         Part(
             InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
-            nonBlankLines(wbState.lines.take(7)).map(_.phrase): _*
+            nonBlankLines(wbState.lines.take(7)).map(_.phrase)
         ),
         Part(
             InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
-            nonBlankLines(wbState.lines.drop(7)).map(_.phrase): _*
+            nonBlankLines(wbState.lines.drop(7)).map(_.phrase)
         )
     )
 }
@@ -207,7 +207,9 @@ def runMusic() {
 }
 
 def stopMusic() {
-    MusicPlayer.stopPlaying()
+    if (MusicPlayer.started) {
+        MusicPlayer.stopPlaying()
+    }
     wbState.currStopButton.setEnabled(false)
     wbState.currRunButton.setEnabled(true)
     metronome.stop()
@@ -344,8 +346,80 @@ def nonBlankLines(lines: Seq[PhraseLine]): Seq[PhraseLine] =
         }.isDefined
     }
 
-def exportButton: Button = Button("Export") {
-    println("Coming soon (code that plays the current score)...")
+def toExportString(s: Score): String = {
+    val sb = new StringBuilder
+    sb.append("Score(")
+    sb.append("\n  ")
+    sb.append(s.tempo)
+    sb.append(",\n")
+    sb.append("  Part.percussion(")
+    sb.append("\n")
+    sb.append("    Phrase(")
+    val pp = s.parts(0).phrases(0).elems.map {
+        case _: Rest => "r"
+        case _       => "pbd"
+    }
+    sb.append(pp.mkString(", "))
+    sb.append(")") // end phrase
+    sb.append("\n")
+    sb.append("  ),") // end part
+    sb.append("\n")
+    sb.append("  Part(")
+    sb.append("\n")
+    sb.append("    PIANO,")
+    sb.append("\n")
+    s.parts(1).phrases.foreach { phrase =>
+        sb.append("    Phrase(")
+        val pp = phrase.elems.map {
+            case _: Rest => "r"
+            case Note(pitch, _, _, _, _) =>
+                NoteNames.pitchToSwaraName(pitch)
+                    .replaceAllLiterally("2", "").toLowerCase
+        }
+        sb.append(pp.mkString(", "))
+        sb.append("),") // end phrase
+        sb.append("\n")
+    }
+    sb.append("  ),") // end part
+    sb.append("\n")
+    sb.append(")")
+    sb.append("\n")
+    sb.toString
+}
+
+def exportButton: Button = Button("Export Code") {
+    clearOutput()
+    val sc = Score(
+        wbState.currTempoTf.value,
+        Part.percussion(
+            wbState.linePerc.phrase
+        ),
+        Part(
+            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
+            new GridView(wbState.lines).phrases
+        )
+    )
+
+    //    println(sc)
+    println(toExportString(sc))
+
+    //    println(wbState.lines)
+    //    println(currentScore)
+
+    //    Score(
+    //        wbState.currTempoTf.value,
+    //        Part.percussion(
+    //            wbState.linePerc.phrase
+    //        ),
+    //        Part(
+    //            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
+    //            nonBlankLines(wbState.lines.take(7)).map(_.phrase)
+    //        ),
+    //        Part(
+    //            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
+    //            nonBlankLines(wbState.lines.drop(7)).map(_.phrase)
+    //        )
+    //    )
 }
 
 def updateSoundfontButton = {
@@ -534,5 +608,68 @@ class Metronome {
             tickTaskFuture = null
             unmarkPic(prevIndex(idx))
         }
+    }
+}
+
+class GridView(lines: Seq[PhraseLine]) {
+    val barSize = 4
+    def rows = lines.length
+    def cols = lines.head.bars.length * barSize
+
+    def phrases = {
+        val numPhrases = maxRowsOn
+        val buffers = for (n <- 0 until maxRowsOn) yield ArrayBuffer.empty[MusicElem]
+        for (timeStep <- 0 until cols) {
+            //            breakpoint(s"---Looking at Timestep - $timeStep")
+            val noteRows = rowsOn(timeStep)
+            //            breakpoint(s"Num rows on $timeStep")
+            val bufIter = buffers.iterator
+            for (nr <- noteRows) {
+                bufIter.next.append(lines(nr).note)
+            }
+            while (bufIter.hasNext) {
+                bufIter.next.append(Rest())
+            }
+        }
+        buffers.map(Phrase(_))
+    }
+
+    def on(row: Int, col: Int): Boolean = {
+        val line = lines(row)
+        val barNum = col / barSize
+        val inBarNum = col % barSize
+        line.bars(barNum).ons(inBarNum)
+    }
+
+    def rowsOn(col: Int): Seq[Int] = {
+        var ret = Vector.empty[Int]
+        for (row <- 0 until rows) {
+            if (on(row, col)) {
+                ret = ret.appended(row)
+            }
+        }
+        ret
+    }
+
+    def numRowsOn(col: Int): Int = {
+        var num = 0
+        for (row <- 0 until rows) {
+            //            breakpoint(s"Looking at row - $row - (for on)")
+            if (on(row, col)) {
+                num += 1
+            }
+        }
+        num
+    }
+
+    def maxRowsOn: Int = {
+        var max = 0
+        for (col <- 0 until cols) {
+            val rowsOn = numRowsOn(col)
+            if (rowsOn > max) {
+                max = rowsOn
+            }
+        }
+        max
     }
 }
