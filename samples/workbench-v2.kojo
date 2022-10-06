@@ -364,9 +364,10 @@ def toExportString(s: Score): String = {
     sb.append("\n")
     sb.append("  ),") // end part
     sb.append("\n")
+
     sb.append("  Part(")
     sb.append("\n")
-    sb.append("    PIANO,")
+    sb.append("    GUITAR,")
     sb.append("\n")
     s.parts(1).phrases.foreach { phrase =>
         sb.append("    Phrase(")
@@ -381,6 +382,25 @@ def toExportString(s: Score): String = {
     }
     sb.append("  ),") // end part
     sb.append("\n")
+
+    sb.append("  Part(")
+    sb.append("\n")
+    sb.append("    PIANO,")
+    sb.append("\n")
+    s.parts(2).phrases.foreach { phrase =>
+        sb.append("    Phrase(")
+        val pp = phrase.elems.map {
+            case _: Rest => "r"
+            case Note(pitch, _, _, _, _) =>
+                NoteNames.pitchToSwaraName(pitch).toLowerCase
+        }
+        sb.append(pp.mkString(", "))
+        sb.append("),") // end phrase
+        sb.append("\n")
+    }
+    sb.append("  ),") // end part
+    sb.append("\n")
+    
     sb.append(")")
     sb.append("\n")
     sb.toString
@@ -394,8 +414,12 @@ def exportButton: Button = Button("Export Code") {
             wbState.linePerc.phrase
         ),
         Part(
+            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
+            new GridView(wbState.lines.take(7)).phrases
+        ),
+        Part(
             InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
-            new GridView(wbState.lines).phrases
+            new GridView(wbState.lines.drop(7)).phrases
         )
     )
 
