@@ -57,7 +57,9 @@ object NoteNames {
 
   val allSwaraNames =
     (1 to 3).foldLeft(IndexedSeq.empty[String]) { (currSeq, currOctave) =>
-      currSeq ++ swaraNames.map(_ + currOctave.toString)
+      currSeq ++ swaraNames.map { n =>
+        if (currOctave == 2) n else n + currOctave.toString
+      }
     }
 
   val pitchToSwaraName = Map.from(

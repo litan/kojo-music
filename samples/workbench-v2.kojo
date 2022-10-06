@@ -373,8 +373,7 @@ def toExportString(s: Score): String = {
         val pp = phrase.elems.map {
             case _: Rest => "r"
             case Note(pitch, _, _, _, _) =>
-                NoteNames.pitchToSwaraName(pitch)
-                    .replaceAllLiterally("2", "").toLowerCase
+                NoteNames.pitchToSwaraName(pitch).toLowerCase
         }
         sb.append(pp.mkString(", "))
         sb.append("),") // end phrase
