@@ -365,42 +365,30 @@ def toExportString(s: Score): String = {
     sb.append("  ),") // end part
     sb.append("\n")
 
-    sb.append("  Part(")
-    sb.append("\n")
-    sb.append("    GUITAR,")
-    sb.append("\n")
-    s.parts(1).phrases.foreach { phrase =>
-        sb.append("    Phrase(")
-        val pp = phrase.elems.map {
-            case _: Rest => "r"
-            case Note(pitch, _, _, _, _) =>
-                NoteNames.pitchToSwaraName(pitch).toLowerCase
-        }
-        sb.append(pp.mkString(", "))
-        sb.append("),") // end phrase
-        sb.append("\n")
-    }
-    sb.append("  ),") // end part
-    sb.append("\n")
+    // hard code (default) instruments for now
+    val instruments = Seq("GUITAR", "PIANO").iterator
 
-    sb.append("  Part(")
-    sb.append("\n")
-    sb.append("    PIANO,")
-    sb.append("\n")
-    s.parts(2).phrases.foreach { phrase =>
-        sb.append("    Phrase(")
-        val pp = phrase.elems.map {
-            case _: Rest => "r"
-            case Note(pitch, _, _, _, _) =>
-                NoteNames.pitchToSwaraName(pitch).toLowerCase
-        }
-        sb.append(pp.mkString(", "))
-        sb.append("),") // end phrase
+    s.parts.drop(1).foreach { part =>
+        sb.append("  Part(")
         sb.append("\n")
+        sb.append(s"    ${instruments.next},")
+        sb.append("\n")
+        part.phrases.foreach { phrase =>
+            sb.append("    Phrase(")
+            val pp = phrase.elems.map {
+                case _: Rest => "r"
+                case Note(pitch, _, _, _, _) =>
+                    NoteNames.pitchToSwaraName(pitch).toLowerCase
+            }
+            sb.append(pp.mkString(", "))
+            sb.append("),") // end phrase
+            sb.append("\n")
+        }
+        sb.append("  ),") // end part
+        sb.append("\n")
+
     }
-    sb.append("  ),") // end part
-    sb.append("\n")
-    
+
     sb.append(")")
     sb.append("\n")
     sb.toString
@@ -423,26 +411,7 @@ def exportButton: Button = Button("Export Code") {
         )
     )
 
-    //    println(sc)
     println(toExportString(sc))
-
-    //    println(wbState.lines)
-    //    println(currentScore)
-
-    //    Score(
-    //        wbState.currTempoTf.value,
-    //        Part.percussion(
-    //            wbState.linePerc.phrase
-    //        ),
-    //        Part(
-    //            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
-    //            nonBlankLines(wbState.lines.take(7)).map(_.phrase)
-    //        ),
-    //        Part(
-    //            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
-    //            nonBlankLines(wbState.lines.drop(7)).map(_.phrase)
-    //        )
-    //    )
 }
 
 def updateSoundfontButton = {
