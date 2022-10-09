@@ -346,52 +346,48 @@ def nonBlankLines(lines: Seq[PhraseLine]): Seq[PhraseLine] =
         }.isDefined
     }
 
+val exportTemplate = """
+    Score(
+        %f,
+        Part.percussion(
+            %s
+        ),
+        Part(
+            GUITAR,
+            %s
+        ),
+        Part(
+            PIANO,
+            %s
+        )
+    )
+"""
+
 def toExportString(s: Score): String = {
-    val sb = new StringBuilder
-    sb.append("Score(")
-    sb.append("\n  ")
-    sb.append(s.tempo)
-    sb.append(",\n")
-    sb.append("  Part.percussion(")
-    sb.append("\n")
-    sb.append("    Phrase(")
-    val pp = s.parts(0).phrases(0).elems.map {
+    val percPart = s.parts(0).phrases(0).elems.map {
         case _: Rest => "r"
         case _       => "pbd"
-    }
-    sb.append(pp.mkString(", "))
-    sb.append(")") // end phrase
-    sb.append("\n")
-    sb.append("  ),") // end part
-    sb.append("\n")
+    }.mkString("Phrase(", ",", ")")
 
-    // hard code (default) instruments for now
-    val instruments = Seq("GUITAR", "PIANO").iterator
-
-    s.parts.drop(1).foreach { part =>
-        sb.append("  Part(")
-        sb.append("\n")
-        sb.append(s"    ${instruments.next},")
-        sb.append("\n")
-        part.phrases.foreach { phrase =>
-            sb.append("    Phrase(")
-            val pp = phrase.elems.map {
+    def instrumentPart(part: Part): String = {
+        part.phrases.map { phrase =>
+            phrase.elems.map {
                 case _: Rest => "r"
                 case Note(pitch, _, _, _, _) =>
                     NoteNames.pitchToSwaraName(pitch).toLowerCase
-            }
-            sb.append(pp.mkString(", "))
-            sb.append("),") // end phrase
-            sb.append("\n")
-        }
-        sb.append("  ),") // end part
-        sb.append("\n")
-
+            }.mkString("Phrase(", ",", ")")
+        }.mkString(",\n")
     }
 
-    sb.append(")")
-    sb.append("\n")
-    sb.toString
+    val guitarPart = instrumentPart(s.parts(1))
+    val pianoPart = instrumentPart(s.parts(2))
+
+    exportTemplate.format(
+        s.tempo,
+        percPart,
+        guitarPart,
+        pianoPart
+    ).trim
 }
 
 def exportButton: Button = Button("Export Code") {
