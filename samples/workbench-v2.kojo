@@ -1,13 +1,15 @@
-//toggleFullScreenCanvas()
 import net.kogics.kojo.music._
+import QuickSwara._
 
-// size(1200, 700)
+val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
+//val notes = Seq(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62)
+//val notes = Seq.tabulate(15)(_ + 50)
+
 cleari()
 clearOutput()
 disablePanAndZoom()
 
 val cb = canvasBounds
-
 val offWhite = Color(0xF2F5F1)
 val bluem = Color(0x1356A2)
 val noteFill = bluem
@@ -65,10 +67,10 @@ def noteLabelPic(note: Note) = {
     picStackCentered(
         Picture.rectangle(100, 10).withPenColor(noColor),
         picRow(
-            Picture.text(NoteNames.pitchToNoteName(note.pitch)).withPenColor(black),
-            Picture.hgap(3),
-            Picture.text("/"),
-            Picture.hgap(3),
+            //            Picture.text(NoteNames.pitchToNoteName(note.pitch)).withPenColor(black),
+            //            Picture.hgap(3),
+            //            Picture.text("/"),
+            //            Picture.hgap(3),
             Picture.text(NoteNames.pitchToSwaraName(note.pitch)).withPenColor(black)
         )
     )
@@ -91,8 +93,6 @@ def linePic(line: PhraseLine) = picRowCentered(
 )
 
 def bar = Bar(Array(false, false, false, false))
-
-val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
 
 def line(note: Note) = PhraseLine(note, Seq(bar, bar, bar, bar))
 
@@ -209,9 +209,9 @@ def runMusic() {
 def stopMusic() {
     if (MusicPlayer.started) {
         MusicPlayer.stopPlaying()
+        wbState.currRunButton.setEnabled(true)
     }
     wbState.currStopButton.setEnabled(false)
-    wbState.currRunButton.setEnabled(true)
     metronome.stop()
 }
 
@@ -346,7 +346,24 @@ def nonBlankLines(lines: Seq[PhraseLine]): Seq[PhraseLine] =
         }.isDefined
     }
 
-val exportTemplate = """
+val exportScriptTemplate = """
+%sinclude /music.kojo
+
+cleari()
+
+val notes = Phrase(
+    sa, re
+)
+
+val score =
+    %s
+    
+showServerControls()
+MusicPlayer.play(score)
+updateServerControls()
+""".trim
+
+val exportScoreTemplate = """
     Score(
         %f,
         Part.percussion(
@@ -361,13 +378,13 @@ val exportTemplate = """
             %s
         )
     )
-"""
+""".trim
 
 def toExportString(s: Score): String = {
     val percPart = s.parts(0).phrases(0).elems.map {
         case _: Rest => "r"
         case _       => "pbd"
-    }.mkString("Phrase(", ",", ")")
+    }.mkString("Phrase(", ", ", ")")
 
     def instrumentPart(part: Part): String = {
         part.phrases.map { phrase =>
@@ -375,19 +392,21 @@ def toExportString(s: Score): String = {
                 case _: Rest => "r"
                 case Note(pitch, _, _, _, _) =>
                     NoteNames.pitchToSwaraName(pitch).toLowerCase
-            }.mkString("Phrase(", ",", ")")
+            }.mkString("Phrase(", ", ", ")")
         }.mkString(",\n")
     }
 
     val guitarPart = instrumentPart(s.parts(1))
     val pianoPart = instrumentPart(s.parts(2))
 
-    exportTemplate.format(
+    val score = exportScoreTemplate.format(
         s.tempo,
         percPart,
         guitarPart,
         pianoPart
-    ).trim
+    )
+
+    exportScriptTemplate.format("// #", score)
 }
 
 def exportButton: Button = Button("Export Code") {
