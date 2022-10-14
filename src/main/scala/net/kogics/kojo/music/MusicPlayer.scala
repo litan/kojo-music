@@ -122,7 +122,7 @@ object MusicPlayer {
     playHelper(OSCBundleGenerator.scoreToOSCBundleWithClear(score))
   }
 
-  private def playNextOnCurrentChannels(score: Score): Boolean = {
+  private[music] def playNextOnCurrentChannels(score: Score): Boolean = {
     playHelper(OSCBundleGenerator.scoreToOSCBundleNextInitChannels(score))
   }
 
@@ -134,10 +134,12 @@ object MusicPlayer {
   def playAlso(score: Score) = playNowOnNextChannels(score)
   def playNext(score: Score) = playNextOnCurrentChannels(score)
 
+  private def scoreGen(score: Score) = new ScoreGenerator {
+    def nextScore: Score = score
+  }
+
   def playLoop(score: Score): Unit = {
-    playLoop(new ScoreGenerator {
-      def nextScore: Score = score
-    })
+    playLoop(scoreGen(score))
   }
 
   def playLoop(scoreGenerator: ScoreGenerator): Unit = synchronized {
@@ -173,6 +175,9 @@ object MusicPlayer {
     musicTask.run()
   }
 
+  def playLiveLoop(score: Score): Unit =
+    LiveLoop.play("live_loop0", scoreGen(score))
+
   def cancelLoopTask(): Unit = {
     if (loopTaskFuture != null) {
       loopTaskFuture.cancel(false)
@@ -183,6 +188,7 @@ object MusicPlayer {
   def stopPlaying(): Boolean = synchronized {
     loopPlaying = false
     cancelLoopTask()
+    LiveLoop.stopPlaying()
     playHelper(OSCBundleGenerator.stopOSCBundle())
   }
 
