@@ -72,13 +72,13 @@ object Beat {
   ): Note = Note(drumType, duration, length, dynamic, pan)
   def apply(drumType: Int): Note = apply(drumType, Duration.QuarterNote)
   def apply(drumType: Int, duration: Duration): Note =
-    apply(drumType, duration, 0.9, 127, 0.5)
+    apply(drumType, duration, 0.9, 100, 0.5)
 }
 
 object Note {
   def apply(pitch: Int): Note = Note(pitch, Duration.QuarterNote)
   def apply(pitch: Int, duration: Duration): Note =
-    Note(pitch, duration, 0.9, 127, 0.5)
+    Note(pitch, duration, 0.9, 100, 0.5)
 }
 
 case class Note(
