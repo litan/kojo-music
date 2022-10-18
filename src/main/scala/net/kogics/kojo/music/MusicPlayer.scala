@@ -147,8 +147,7 @@ object MusicPlayer {
     loopPlaying = true
     var firstSchedule = true
 
-    def scheduleNext(currScore: Score): Unit = {
-      val rate = currScore.durationMillis
+    def scheduleNextRun(rate: Int): Unit = {
       val delay = if (firstSchedule) {
         firstSchedule = false
         (rate * 0.8).toInt
@@ -165,9 +164,9 @@ object MusicPlayer {
     lazy val musicTask = new Runnable {
       def run(): Unit = MusicPlayer.synchronized {
         if (loopPlaying) {
-          val currScore = scoreGenerator.nextScore
-          MusicPlayer.playNextOnCurrentChannels(currScore)
-          scheduleNext(currScore)
+          val upcomingScore = scoreGenerator.nextScore
+          MusicPlayer.playNextOnCurrentChannels(upcomingScore)
+          scheduleNextRun(upcomingScore.durationMillis)
         }
       }
     }
@@ -177,6 +176,9 @@ object MusicPlayer {
 
   def playLiveLoop(score: Score): Unit =
     LiveLoop.play("live_loop0", scoreGen(score))
+
+  def playLiveLoop(scoreGenerator: ScoreGenerator): Unit =
+    LiveLoop.play("live_loop0", scoreGenerator)
 
   def cancelLoopTask(): Unit = {
     if (loopTaskFuture != null) {

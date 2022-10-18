@@ -28,8 +28,7 @@ object LiveLoop {
       var firstSchedule = true
       val safeLatencyDelta = 900 // ms
 
-      def scheduleNext(currScore: Score): Unit = {
-        val rate = currScore.durationMillis
+      def scheduleNextRun(rate: Int): Unit = {
         val delay = if (firstSchedule) {
           firstSchedule = false
           math.max((rate * 0.8).toInt, rate - safeLatencyDelta)
@@ -47,9 +46,9 @@ object LiveLoop {
       lazy val musicTask = new Runnable {
         def run(): Unit = MusicPlayer.synchronized {
           if (loopPlaying(name)) {
-            val currScore = scoreGenerator(name).nextScore
-            MusicPlayer.playNextOnCurrentChannels(currScore)
-            scheduleNext(currScore)
+            val upcomingScore = scoreGenerator(name).nextScore
+            MusicPlayer.playNextOnCurrentChannels(upcomingScore)
+            scheduleNextRun(upcomingScore.durationMillis)
           }
         }
       }
