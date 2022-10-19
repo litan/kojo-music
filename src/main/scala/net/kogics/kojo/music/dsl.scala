@@ -122,8 +122,10 @@ case class Phrase(elems: MusicElem*) {
 sealed abstract class Part {
   def instrument: Int
   def phrases: Seq[Phrase]
-  def durationMillis(tempo: Double): Int =
-    phrases.map(p => p.durationMillis(tempo)).max
+  def durationMillis(tempo: Double): Int = {
+    val phraseDurationMillis = phrases.map(p => p.durationMillis(tempo))
+    if (phraseDurationMillis.size > 0) phraseDurationMillis.max else 0
+  }
 
   def showDurationMillis(tempo: Double): Unit = {
     println("---Part phrase millis:")
