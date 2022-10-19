@@ -175,10 +175,12 @@ object MusicPlayer {
   }
 
   def playLiveLoop(score: Score): Unit =
-    LiveLoop.play("live_loop0", scoreGen(score))
+    playLiveLoop(scoreGen(score))
 
-  def playLiveLoop(scoreGenerator: ScoreGenerator): Unit =
+  def playLiveLoop(scoreGenerator: ScoreGenerator): Unit = {
+    startAsNeeded()
     LiveLoop.play("live_loop0", scoreGenerator)
+  }
 
   def cancelLoopTask(): Unit = {
     if (loopTaskFuture != null) {
