@@ -39,7 +39,9 @@ val stopButton = Button("Stop Playing") {
 }
 
 def stopMusic() {
-    MusicPlayer.stopPlaying()
+    if (MusicPlayer.started) {
+        MusicPlayer.stopPlaying()
+    }
 }
 
 val updateButton = Button("Update Srv Up/Dn") {
