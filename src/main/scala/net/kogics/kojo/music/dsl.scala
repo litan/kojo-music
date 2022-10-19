@@ -20,15 +20,16 @@ trait MusicElem {
 
 sealed abstract class Duration {
   import Duration._
-  def quarterNoteToMillis(tempo: Double) = math.round(60000 / tempo).toInt
+  private def quarterNoteToMillis(tempo: Double) = 60000 / tempo
+  private def round(d: Double): Int = math.round(d).toInt
   def toMillis(tempo: Double): Int = this match {
-    case WholeNote     => quarterNoteToMillis(tempo) * 4
-    case HalfNote      => quarterNoteToMillis(tempo) * 2
-    case QuarterNote   => quarterNoteToMillis(tempo)
-    case EighthNote    => quarterNoteToMillis(tempo) / 2
-    case SixteenthNote => quarterNoteToMillis(tempo) / 4
+    case WholeNote     => round(quarterNoteToMillis(tempo) * 4)
+    case HalfNote      => round(quarterNoteToMillis(tempo) * 2)
+    case QuarterNote   => round(quarterNoteToMillis(tempo))
+    case EighthNote    => round(quarterNoteToMillis(tempo) / 2)
+    case SixteenthNote => round(quarterNoteToMillis(tempo) / 4)
     case NthDuration(denominator) =>
-      math.round(quarterNoteToMillis(tempo) / (denominator / 4)).toInt
+      round(quarterNoteToMillis(tempo) / (denominator / 4))
     case CompositeDuration(d1, d2) => d1.toMillis(tempo) + d2.toMillis(tempo)
   }
 
@@ -121,6 +122,19 @@ case class Phrase(elems: MusicElem*) {
 sealed abstract class Part {
   def instrument: Int
   def phrases: Seq[Phrase]
+  def durationMillis(tempo: Double): Int =
+    phrases.map(p => p.durationMillis(tempo)).max
+
+  def showDurationMillis(tempo: Double): Unit = {
+    println("---Part phrase millis:")
+    var max = 0
+    phrases.zipWithIndex.foreach { case (p, i) =>
+      val dm = p.durationMillis(tempo)
+      max = math.max(dm, max)
+      println(s"Phrase $i - $dm")
+    }
+    println(s"Part millis max - $max")
+  }
 }
 
 object Part {
@@ -141,10 +155,18 @@ case class PercussionPart(phrases: Phrase*) extends Part {
 }
 
 case class Score(tempo: Double, parts: Part*) {
-  def durationMillis: Int = if (parts.length > 0 && parts(0).phrases.length > 0)
-    parts(0).phrases(0).durationMillis(tempo)
-  else
-    0
+  val durationMillis: Int = {
+    val partDurationMillis = parts.map(p => p.durationMillis(tempo))
+    if (partDurationMillis.distinct.length != 1) {
+      println("Score Warning - part duration millis are not the same!")
+      println("Part duration millis:")
+      partDurationMillis.zipWithIndex.foreach { case (d, i) =>
+        println(s"Part $i - $d")
+      }
+      parts.foreach(_.showDurationMillis(tempo))
+    }
+    partDurationMillis.max
+  }
 }
 
 trait ScoreGenerator {
