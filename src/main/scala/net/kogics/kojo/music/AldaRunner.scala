@@ -31,7 +31,8 @@ object AldaRunner {
 
   val aldaEnv = Seq(
     ("PATH" -> s"$javaDir:$origPath"),
-    ("JAVA_HOME" -> javaHome)
+    ("JAVA_HOME" -> javaHome),
+    ("JAVA_OPTS" -> "-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -Xmx1024m -Xms256m")
   )
 
   def isWin = {
