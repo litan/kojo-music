@@ -158,7 +158,11 @@ case class PercussionPart(phrases: Phrase*) extends Part {
 
 case class Score(tempo: Double, parts: Part*) {
   val durationMillis: Int = {
-    val partDurationMillis = parts.map(p => p.durationMillis(tempo))
+    val partDurationMillis =
+      parts
+        .map(p => p.durationMillis(tempo))
+        .filter(d => d != 0)
+
     if (partDurationMillis.distinct.length != 1) {
       println("Score Warning - part duration millis are not the same!")
       println("Part duration millis:")
