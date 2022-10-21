@@ -105,6 +105,20 @@ case class MultiNote(notes: Note*) extends MusicElem {
   def duration: Duration = durationSum(notes)
 }
 
+object ParMultiNote {
+  def apply(elems: collection.Seq[Note]): ParMultiNote = ParMultiNote(
+    elems.toSeq: _*
+  )
+}
+
+case class ParMultiNote(notes: Note*) extends MusicElem {
+  val ordering = new Ordering[Duration] {
+    def compare(x: Duration, y: Duration): Int =
+      x.toMillis(60).compare(y.toMillis(60))
+  }
+  def duration: Duration = notes.map(_.duration).max(ordering)
+}
+
 object Phrase {
   def apply(elems: collection.Seq[MusicElem]): Phrase = Phrase(elems.toSeq: _*)
 }

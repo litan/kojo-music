@@ -79,6 +79,11 @@ object OSCBundleGenerator {
           mn.notes.foreach { note =>
             offset = addNotePackets(note, offset)
           }
+        case pmn: ParMultiNote =>
+          pmn.notes.foreach { note =>
+            addNotePackets(note, offset)
+          }
+          offset += pmn.duration.toMillis(tempo)
       }
       if (phrase.elems.nonEmpty) {
         phrase.elems.last match {
