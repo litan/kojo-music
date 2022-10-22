@@ -177,6 +177,13 @@ object MusicPlayer {
   def playLiveLoop(score: Score): Unit =
     playLiveLoop(scoreGen(score))
 
+  def playLiveLoop(score: () => Score): Unit = {
+    val scoreGen = new ScoreGenerator {
+      def nextScore: Score = score()
+    }
+    playLiveLoop(scoreGen)
+  }
+
   def playLiveLoop(scoreGenerator: ScoreGenerator): Unit = {
     startAsNeeded()
     LiveLoop.play("live_loop0", scoreGenerator)
