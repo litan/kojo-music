@@ -75,11 +75,11 @@ object OSCBundleGenerator {
           offset = addNotePackets(note, offset)
         case rest: Rest =>
           offset += rest.duration.toMillis(tempo)
-        case mn: MultiNote =>
+        case mn: MultiNoteSeq =>
           mn.notes.foreach { note =>
             offset = addNotePackets(note, offset)
           }
-        case pmn: ParMultiNote =>
+        case pmn: MultiNotePar =>
           pmn.notes.foreach { note =>
             addNotePackets(note, offset)
           }

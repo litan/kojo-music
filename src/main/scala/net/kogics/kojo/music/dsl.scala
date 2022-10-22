@@ -93,25 +93,25 @@ case class Note(
 case class Rest(duration: Duration = Duration.QuarterNote) extends MusicElem
 
 object MultiBeat {
-  def apply(beats: Note*): MultiNote = MultiNote(beats)
-  def apply(beats: collection.Seq[Note]): MultiNote = apply(beats.toSeq: _*)
+  def apply(beats: Note*): MultiNoteSeq = MultiNoteSeq(beats)
+  def apply(beats: collection.Seq[Note]): MultiNoteSeq = apply(beats.toSeq: _*)
 }
 
-object MultiNote {
-  def apply(elems: collection.Seq[Note]): MultiNote = MultiNote(elems.toSeq: _*)
+object MultiNoteSeq {
+  def apply(elems: collection.Seq[Note]): MultiNoteSeq = MultiNoteSeq(elems.toSeq: _*)
 }
 
-case class MultiNote(notes: Note*) extends MusicElem {
+case class MultiNoteSeq(notes: Note*) extends MusicElem {
   def duration: Duration = durationSum(notes)
 }
 
-object ParMultiNote {
-  def apply(elems: collection.Seq[Note]): ParMultiNote = ParMultiNote(
+object MultiNotePar {
+  def apply(elems: collection.Seq[Note]): MultiNotePar = MultiNotePar(
     elems.toSeq: _*
   )
 }
 
-case class ParMultiNote(notes: Note*) extends MusicElem {
+case class MultiNotePar(notes: Note*) extends MusicElem {
   val ordering = new Ordering[Duration] {
     def compare(x: Duration, y: Duration): Int =
       x.toMillis(60).compare(y.toMillis(60))
