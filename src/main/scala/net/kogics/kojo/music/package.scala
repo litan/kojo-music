@@ -21,7 +21,7 @@ package object music {
   }
 
   def slur(notes: Note*): MusicElem = {
-    MultiNote(
+    MultiNoteSeq(
       notes.view
         .take(notes.length - 1)
         .map(note => note.copy(length = 1))
