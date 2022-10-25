@@ -99,6 +99,7 @@ def line(note: Note) = PhraseLine(note, Seq(bar, bar, bar, bar))
 case class UiFields(
     currMsStartBtn:    Button,
     currMsStopBtn:     Button,
+    currMsUpdateBtn:   Button,
     currRunButton:     Button,
     currStopButton:    Button,
     currInstrument1Dd: DropDown[String],
@@ -115,6 +116,7 @@ case class WBState(
 ) {
     def currMsStartBtn = uiFields.get.currMsStartBtn
     def currMsStopBtn = uiFields.get.currMsStopBtn
+    def currMsUpdateBtn = uiFields.get.currMsUpdateBtn
     def currRunButton = uiFields.get.currRunButton
     def currStopButton = uiFields.get.currStopButton
     def currInstrument1Dd = uiFields.get.currInstrument1Dd
@@ -166,7 +168,7 @@ def startMusicServerButton: Button = {
         if (!MusicPlayer.started) {
             println("\nStarting music server. This might take a few seconds...")
             schedule(0.1) {
-                MusicPlayer.startAsNeeded(true)
+                MusicPlayer.startAsNeeded()
                 wbState.currMsStartBtn.setEnabled(false)
                 wbState.currMsStopBtn.setEnabled(true)
                 wbState.currRunButton.setEnabled(true)
@@ -191,12 +193,21 @@ def stopMusicServerButton = {
     btn
 }
 
-def runMusic() {
-    if (!MusicPlayer.started) {
-        println("Start the music server before Running.")
-        return
+def updateServerControls() {
+    val running = MusicPlayer.serverRunning
+    if (!running && MusicPlayer.started) {
+        MusicPlayer.started = false
     }
+    wbState.currMsStartBtn.setEnabled(!running)
+    wbState.currMsStopBtn.setEnabled(running)
+    wbState.currRunButton.setEnabled(running)
+}
 
+def updateMusicServerButton = Button("Update Srv Up/Dn") {
+    updateServerControls()
+}
+
+def runMusic() {
     MusicPlayer.playLoop(currentScore)
 
     wbState.currRunButton.setEnabled(false)
@@ -334,6 +345,7 @@ def loadButton: Button = Button("Load") {
         metronome = new Metronome()
         currentUi = ui
         drawCentered(currentUi)
+        updateServerControls()
     }
 }
 
@@ -486,6 +498,7 @@ def controlPanel = {
     val uif = UiFields(
         startMusicServerButton,
         stopMusicServerButton,
+        updateMusicServerButton,
         runButton,
         stopButton,
         DropDown(InstrumentNames.names: _*),
@@ -526,6 +539,8 @@ def controlPanel = {
         ColPanel.verticalGap(vertGap * 5),
         RowPanel(updateSoundfontButton),
         ColPanel.verticalGap(vertGap),
+        RowPanel(wbState.currMsUpdateBtn),
+        ColPanel.verticalGap(vertGap),
         RowPanel(wbState.currMsStartBtn, RowPanel.horizontalGap(10), wbState.currMsStopBtn),
     )
 }
@@ -536,6 +551,7 @@ def ui = picRowCentered(controls, Picture.hgap(20), scorePicMaker)
 var currentUi = ui
 drawCentered(currentUi)
 println("Note - if the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (and ignore any socket errors while bringing it down). It should work fine after that...")
+updateServerControls()
 
 class Metronome {
     def picMaker(i: Int) = {

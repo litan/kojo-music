@@ -7,12 +7,18 @@ import Instrument._
 
 val vertGap = 3
 
+def stopMusic() {
+    if (MusicPlayer.started) {
+        MusicPlayer.stopPlaying()
+    }
+}
+
 val startMusicServerButton: Button = {
     lazy val btn: Button = Button("Srv Up") {
         if (!MusicPlayer.started) {
             println("\nStarting music server. This might take a few seconds...")
             schedule(0.1) {
-                MusicPlayer.startAsNeeded(true)
+                MusicPlayer.startAsNeeded()
                 btn.setEnabled(false)
             }
         }
@@ -38,10 +44,13 @@ val stopButton = Button("Stop Playing") {
     stopMusic()
 }
 
-def stopMusic() {
-    if (MusicPlayer.started) {
-        MusicPlayer.stopPlaying()
+def updateServerControls() {
+    val running = MusicPlayer.serverRunning
+    if (!running && MusicPlayer.started) {
+        MusicPlayer.started = false
     }
+    startMusicServerButton.setEnabled(!running)
+    stopMusicServerButton.setEnabled(running)
 }
 
 val updateButton = Button("Update Srv Up/Dn") {
@@ -68,10 +77,4 @@ val controls = Picture.widget(controlPanel)
 def showServerControls() {
     val cb = canvasBounds
     draw(controls.withTranslation(cb.x + 20, cb.y + 20))
-}
-
-def updateServerControls() {
-    val started = MusicPlayer.started
-    startMusicServerButton.setEnabled(!started)
-    stopMusicServerButton.setEnabled(started)
 }
