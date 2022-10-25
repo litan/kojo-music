@@ -52,13 +52,10 @@ object MusicPlayer {
         println("Server is up and listening.")
         Thread.sleep(500)
       } catch {
-        case ioe: IOException =>
+        case _: IOException =>
           currTry += 1
-//          println(s"Server is not up yet ($currTry).")
           if (currTry == maxTries) {
             println("Unable to connect to the server. Giving up.")
-          } else {
-//            println("Will re-check in a second.")
           }
           Thread.sleep(1000)
       } finally {
@@ -75,13 +72,29 @@ object MusicPlayer {
     }
   }
 
-  def startAsNeeded(startServerIfNeeded: Boolean = true): Unit = synchronized {
+  def serverRunning: Boolean = {
+    val cs = new Socket()
+    try {
+      cs.connect(serverAddress)
+      true
+    } catch {
+      case ioe: IOException =>
+        false
+    } finally {
+      try { cs.close() }
+      catch { case _: Throwable => }
+    }
+  }
+
+  def startAsNeeded(): Unit = synchronized {
     if (started) {
       return
     }
 
-    if (startServerIfNeeded) {
-      AldaRunner.runServerIfNeeded()
+    if (serverRunning) {
+      println("Music Server already running. Connecting...")
+    } else {
+      AldaRunner.runServer()
       println("Launched Music Server. Waiting...")
       waitForServerUp()
     }

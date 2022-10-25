@@ -43,8 +43,9 @@ object AldaRunner {
   val aldaCmd =
     if (isWin) s"$aldaDir/alda-player.bat" else s"$aldaDir/alda-player"
 
-  def runServerIfNeeded(): Unit = {
+  def runServer(): Unit = {
     if (aldaProcess != null) {
+      println("Warning - trying to run Alda Player more than once!")
       return
     }
 
