@@ -35,6 +35,7 @@ object MusicPlayer {
 
   var client: OSCPortOut = _
   var started = false
+  var serverOwner = false
 
   private val serverAddress =
     new InetSocketAddress(InetAddress.getByName(null), port)
@@ -86,14 +87,26 @@ object MusicPlayer {
     }
   }
 
+  def queryServerStatus: Boolean = {
+    val running = serverRunning
+    if (started && !serverOwner && !running) {
+      // the music server was shut down by the server owner
+      // allow us to become server owner on a later start
+      started = false
+    }
+    running
+  }
+
   def startAsNeeded(): Unit = synchronized {
     if (started) {
       return
     }
 
     if (serverRunning) {
+      serverOwner = false
       println("Music Server already running. Connecting...")
     } else {
+      serverOwner = true
       AldaRunner.runServer()
       println("Launched Music Server. Waiting...")
       waitForServerUp()
@@ -104,16 +117,23 @@ object MusicPlayer {
       .setRemoteSocketAddress(serverAddress)
       .build()
 
-    keepAlive()
+    if (serverOwner) {
+      keepAlive()
+    }
     started = true
   }
 
   def stop(): Unit = synchronized {
     if (started) {
       stopPlaying()
-      stopKeepAlive()
-      playHelper(OSCBundleGenerator.shutdownOSCBundle(0))
-      AldaRunner.onStopServer()
+      if (serverOwner) {
+        stopKeepAlive()
+        playHelper(OSCBundleGenerator.shutdownOSCBundle(0))
+        AldaRunner.onStopServer()
+        serverOwner = false
+      } else {
+        println("Not stopping Music Server as we did not start it.")
+      }
       started = false
     }
   }

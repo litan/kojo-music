@@ -181,12 +181,17 @@ def startMusicServerButton: Button = {
 
 def stopMusicServerButton = {
     val btn = Button("Srv Dn") {
-        if (MusicPlayer.started) {
-            stopMusic()
-            MusicPlayer.stop()
-            wbState.currMsStartBtn.setEnabled(true)
-            wbState.currMsStopBtn.setEnabled(false)
-            wbState.currRunButton.setEnabled(false)
+        if (MusicPlayer.serverOwner) {
+            if (MusicPlayer.started) {
+                stopMusic()
+                MusicPlayer.stop()
+                wbState.currMsStartBtn.setEnabled(true)
+                wbState.currMsStopBtn.setEnabled(false)
+                wbState.currRunButton.setEnabled(false)
+            }
+        }
+        else {
+            println("Not stopping Music Server as we did not start it.")
         }
     }
     btn.setEnabled(MusicPlayer.started)
@@ -194,10 +199,7 @@ def stopMusicServerButton = {
 }
 
 def updateServerControls() {
-    val running = MusicPlayer.serverRunning
-    if (!running && MusicPlayer.started) {
-        MusicPlayer.started = false
-    }
+    val running = MusicPlayer.queryServerStatus
     wbState.currMsStartBtn.setEnabled(!running)
     wbState.currMsStopBtn.setEnabled(running)
     wbState.currRunButton.setEnabled(running)

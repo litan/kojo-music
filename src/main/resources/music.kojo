@@ -20,6 +20,7 @@ val startMusicServerButton: Button = {
             schedule(0.1) {
                 MusicPlayer.startAsNeeded()
                 btn.setEnabled(false)
+                stopMusicServerButton.setEnabled(true)
             }
         }
     }
@@ -29,11 +30,16 @@ val startMusicServerButton: Button = {
 
 val stopMusicServerButton = {
     lazy val btn: Button = Button("Srv Dn") {
-        if (MusicPlayer.started) {
-            stopMusic()
-            MusicPlayer.stop()
-            startMusicServerButton.setEnabled(true)
-            btn.setEnabled(false)
+        if (MusicPlayer.serverOwner) {
+            if (MusicPlayer.started) {
+                stopMusic()
+                MusicPlayer.stop()
+                btn.setEnabled(false)
+                startMusicServerButton.setEnabled(true)
+            }
+        }
+        else {
+            println("Not stopping Music Server as we did not start it.")
         }
     }
     btn.setEnabled(MusicPlayer.started)
@@ -45,10 +51,7 @@ val stopButton = Button("Stop Playing") {
 }
 
 def updateServerControls() {
-    val running = MusicPlayer.serverRunning
-    if (!running && MusicPlayer.started) {
-        MusicPlayer.started = false
-    }
+    val running = MusicPlayer.queryServerStatus
     startMusicServerButton.setEnabled(!running)
     stopMusicServerButton.setEnabled(running)
 }
