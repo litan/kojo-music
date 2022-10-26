@@ -98,7 +98,9 @@ object MultiBeat {
 }
 
 object MultiNoteSeq {
-  def apply(elems: collection.Seq[Note]): MultiNoteSeq = MultiNoteSeq(elems.toSeq: _*)
+  def apply(elems: collection.Seq[Note]): MultiNoteSeq = MultiNoteSeq(
+    elems.toSeq: _*
+  )
 }
 
 case class MultiNoteSeq(notes: Note*) extends MusicElem {
@@ -131,6 +133,8 @@ case class Phrase(elems: MusicElem*) {
   def durationDecimalForm: Double = elems.foldLeft(0.0) { (d, e) =>
     d + e.duration.toDecimalForm
   }
+
+  def +(other: Phrase) = Phrase(elems ++ other.elems)
 }
 
 sealed abstract class Part {
