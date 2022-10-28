@@ -1,20 +1,21 @@
 import net.kogics.kojo.music._
+import QuickSwara._
 
-// toggleFullScreenCanvas()
+val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
+//val notes = Seq(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62)
+//val notes = Seq.tabulate(15)(_ + 50)
+
 cleari()
 clearOutput()
 disablePanAndZoom()
 
 val cb = canvasBounds
-
 val offWhite = Color(0xF2F5F1)
 val bluem = Color(0x1356A2)
 val noteFill = bluem
 val boundaryClr = black
 
 setBackground(offWhite)
-
-val tempo = 200
 
 case class Bar(ons: Array[Boolean])
 
@@ -26,7 +27,7 @@ case class PhraseLine(note: Note, bars: Seq[Bar]) {
             elem = if (on) note else Rest()
         } yield elem
 
-        Phrase(elems: _*)
+        Phrase(elems)
     }
 }
 
@@ -66,10 +67,10 @@ def noteLabelPic(note: Note) = {
     picStackCentered(
         Picture.rectangle(100, 10).withPenColor(noColor),
         picRow(
-            Picture.text(NoteNames.pitchToNoteName(note.pitch)).withPenColor(black),
-            Picture.hgap(3),
-            Picture.text("/"),
-            Picture.hgap(3),
+            //            Picture.text(NoteNames.pitchToNoteName(note.pitch)).withPenColor(black),
+            //            Picture.hgap(3),
+            //            Picture.text("/"),
+            //            Picture.hgap(3),
             Picture.text(NoteNames.pitchToSwaraName(note.pitch)).withPenColor(black)
         )
     )
@@ -83,7 +84,7 @@ def percussionLabelPic(note: Note) = {
 }
 
 def linePic(line: PhraseLine) = picRowCentered(
-    if (line == linePerc) percussionLabelPic(line.note) else noteLabelPic(line.note),
+    if (line == wbState.linePerc) percussionLabelPic(line.note) else noteLabelPic(line.note),
     Picture.hgap(6),
     barPic(line, 0),
     barPic(line, 1),
@@ -95,35 +96,69 @@ def bar = Bar(Array(false, false, false, false))
 
 def line(note: Note) = PhraseLine(note, Seq(bar, bar, bar, bar))
 
-var linePerc = line(Note(35))
+case class UiFields(
+    currMsStartBtn:    Button,
+    currMsStopBtn:     Button,
+    currMsUpdateBtn:   Button,
+    currRunButton:     Button,
+    currStopButton:    Button,
+    currInstrument1Dd: DropDown[String],
+    currInstrument2Dd: DropDown[String],
+    currTempoTf:       TextField[Int],
+    currMarkBeatsDd:   DropDown[String],
+    currMLatencyTf:    TextField[Int]
+)
 
-val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
+case class WBState(
+    linePerc: PhraseLine,
+    lines:    Seq[PhraseLine],
+    uiFields: Option[UiFields]
+) {
+    def currMsStartBtn = uiFields.get.currMsStartBtn
+    def currMsStopBtn = uiFields.get.currMsStopBtn
+    def currMsUpdateBtn = uiFields.get.currMsUpdateBtn
+    def currRunButton = uiFields.get.currRunButton
+    def currStopButton = uiFields.get.currStopButton
+    def currInstrument1Dd = uiFields.get.currInstrument1Dd
+    def currInstrument2Dd = uiFields.get.currInstrument2Dd
+    def currTempoTf = uiFields.get.currTempoTf
+    def currMarkBeatsDd = uiFields.get.currMarkBeatsDd
+    def currMLatencyTf = uiFields.get.currMLatencyTf
+}
 
-var lines = notes.map(p => line(Note(p)))
+var wbState = WBState(
+    line(Note(35)),
+    notes.map(p => line(Note(p))),
+    None
+)
+
+var metronome = new Metronome()
 
 def linesPicMaker = picCol(
-    lines.map(linePic(_))
+    wbState.lines.map(linePic(_))
 )
 
 def scorePicMaker = picCol(
     linesPicMaker,
-    Picture.vgap(30),
-    linePic(linePerc)
+    Picture.vgap(9),
+    linePic(wbState.linePerc),
+    Picture.vgap(9),
+    metronome.pic
 )
 
 def currentScore: Score = {
     Score(
-        tempo,
+        wbState.currTempoTf.value,
         Part.percussion(
-            linePerc.phrase
+            wbState.linePerc.phrase
         ),
         Part(
-            InstrumentNames.nameToPC(currInstrument1Dd.value),
-            nonBlankLines(lines.take(7)).map(_.phrase): _*
+            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
+            nonBlankLines(wbState.lines.take(7)).map(_.phrase)
         ),
         Part(
-            InstrumentNames.nameToPC(currInstrument2Dd.value),
-            nonBlankLines(lines.drop(7)).map(_.phrase): _*
+            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
+            nonBlankLines(wbState.lines.drop(7)).map(_.phrase)
         )
     )
 }
@@ -133,10 +168,10 @@ def startMusicServerButton: Button = {
         if (!MusicPlayer.started) {
             println("\nStarting music server. This might take a few seconds...")
             schedule(0.1) {
-                MusicPlayer.startAsNeeded(true)
-                currMsStartBtn.setEnabled(false)
-                currMsStopBtn.setEnabled(true)
-                currRunButton.setEnabled(true)
+                MusicPlayer.startAsNeeded()
+                wbState.currMsStartBtn.setEnabled(false)
+                wbState.currMsStopBtn.setEnabled(true)
+                wbState.currRunButton.setEnabled(true)
             }
         }
     }
@@ -146,34 +181,51 @@ def startMusicServerButton: Button = {
 
 def stopMusicServerButton = {
     val btn = Button("Srv Dn") {
-        if (MusicPlayer.started) {
-            stopMusic()
-            MusicPlayer.stop()
-            currMsStartBtn.setEnabled(true)
-            currMsStopBtn.setEnabled(false)
-            currRunButton.setEnabled(false)
+        if (MusicPlayer.serverOwner) {
+            if (MusicPlayer.started) {
+                stopMusic()
+                MusicPlayer.stop()
+                wbState.currMsStartBtn.setEnabled(true)
+                wbState.currMsStopBtn.setEnabled(false)
+                wbState.currRunButton.setEnabled(false)
+            }
+        }
+        else {
+            println("Not stopping Music Server as we did not start it.")
         }
     }
     btn.setEnabled(MusicPlayer.started)
     btn
 }
 
-def runMusic() {
-    if (!MusicPlayer.started) {
-        println("Start the music server before Running.")
-        return
-    }
+def updateServerControls() {
+    val running = MusicPlayer.queryServerStatus
+    wbState.currMsStartBtn.setEnabled(!running)
+    wbState.currMsStopBtn.setEnabled(running)
+    wbState.currRunButton.setEnabled(running)
+}
 
+def updateMusicServerButton = Button("Update Srv Up/Dn") {
+    updateServerControls()
+}
+
+def runMusic() {
     MusicPlayer.playLoop(currentScore)
 
-    currRunButton.setEnabled(false)
-    currStopButton.setEnabled(true)
+    wbState.currRunButton.setEnabled(false)
+    wbState.currStopButton.setEnabled(true)
+    if (wbState.currMarkBeatsDd.value == "true") {
+        metronome.start()
+    }
 }
 
 def stopMusic() {
-    MusicPlayer.stopPlaying()
-    currStopButton.setEnabled(false)
-    currRunButton.setEnabled(true)
+    if (MusicPlayer.started) {
+        MusicPlayer.stopPlaying()
+        wbState.currRunButton.setEnabled(true)
+    }
+    wbState.currStopButton.setEnabled(false)
+    metronome.stop()
 }
 
 def runButton = Button("Play") {
@@ -236,8 +288,8 @@ def saveButton = Button("Save") {
                 oos.write(bons)
             }
         }
-        writePhraseLine(linePerc)
-        lines.foreach { line =>
+        writePhraseLine(wbState.linePerc)
+        wbState.lines.foreach { line =>
             writePhraseLine(line)
         }
         oos.close()
@@ -283,15 +335,19 @@ def loadButton: Button = Button("Load") {
             }
             PhraseLine(Note(pitch), bars)
         }
-        linePerc = readPhraseLine()
-        val num = lines.length
-        lines = (0 until num).map { _ =>
-            readPhraseLine()
-        }
+        wbState = wbState.copy(linePerc = readPhraseLine())
+        val num = wbState.lines.length
+        wbState = wbState.copy(
+            lines = (0 until num).map { _ =>
+                readPhraseLine()
+            }
+        )
         oos.close()
         currentUi.erase()
+        metronome = new Metronome()
         currentUi = ui
         drawCentered(currentUi)
+        updateServerControls()
     }
 }
 
@@ -304,8 +360,87 @@ def nonBlankLines(lines: Seq[PhraseLine]): Seq[PhraseLine] =
         }.isDefined
     }
 
-def exportButton: Button = Button("Export") {
-    println("Coming soon (code that plays the current score)...")
+val exportScriptTemplate = """
+%sinclude /music.kojo
+
+cleari()
+
+val notes = Phrase(
+    sa, re
+)
+
+val score =
+    %s
+    
+showServerControls()
+MusicPlayer.play(score)
+updateServerControls()
+""".trim
+
+val exportScoreTemplate = """
+    Score(
+        %f,
+        Part.percussion(
+            %s
+        ),
+        Part(
+            GUITAR,
+            %s
+        ),
+        Part(
+            PIANO,
+            %s
+        )
+    )
+""".trim
+
+def toExportString(s: Score): String = {
+    val percPart = s.parts(0).phrases(0).elems.map {
+        case _: Rest => "r"
+        case _       => "pbd"
+    }.mkString("Phrase(", ", ", ")")
+
+    def instrumentPart(part: Part): String = {
+        part.phrases.map { phrase =>
+            phrase.elems.map {
+                case _: Rest => "r"
+                case Note(pitch, _, _, _, _) =>
+                    NoteNames.pitchToSwaraName(pitch).toLowerCase
+            }.mkString("Phrase(", ", ", ")")
+        }.mkString(",\n")
+    }
+
+    val guitarPart = instrumentPart(s.parts(1))
+    val pianoPart = instrumentPart(s.parts(2))
+
+    val score = exportScoreTemplate.format(
+        s.tempo,
+        percPart,
+        guitarPart,
+        pianoPart
+    )
+
+    exportScriptTemplate.format("// #", score)
+}
+
+def exportButton: Button = Button("Export Code") {
+    clearOutput()
+    val sc = Score(
+        wbState.currTempoTf.value,
+        Part.percussion(
+            wbState.linePerc.phrase
+        ),
+        Part(
+            InstrumentNames.nameToPC(wbState.currInstrument2Dd.value),
+            new GridView(wbState.lines.take(7)).phrases
+        ),
+        Part(
+            InstrumentNames.nameToPC(wbState.currInstrument1Dd.value),
+            new GridView(wbState.lines.drop(7)).phrases
+        )
+    )
+
+    println(toExportString(sc))
 }
 
 def updateSoundfontButton = {
@@ -359,42 +494,56 @@ def updateSoundfontButton = {
 }
 
 val vertGap = 3
-
-var currMsStartBtn: Button = _
-var currMsStopBtn: Button = _
-var currRunButton: Button = _
-var currStopButton: Button = _
-var currInstrument1Dd: DropDown[String] = _
-var currInstrument2Dd: DropDown[String] = _
+val hGap = 3
 
 def controlPanel = {
-    currMsStartBtn = startMusicServerButton
-    currMsStopBtn = stopMusicServerButton
-    currRunButton = runButton
-    currStopButton = stopButton
-    currRunButton.setEnabled(MusicPlayer.started)
-    currStopButton.setEnabled(false)
-    currInstrument1Dd = DropDown(InstrumentNames.names: _*)
-    currInstrument1Dd.setSelectedItem("Guitar (Nylon)")
-    currInstrument2Dd = DropDown(InstrumentNames.names: _*)
-    currInstrument2Dd.setSelectedItem("Piano")
+    val uif = UiFields(
+        startMusicServerButton,
+        stopMusicServerButton,
+        updateMusicServerButton,
+        runButton,
+        stopButton,
+        DropDown(InstrumentNames.names: _*),
+        DropDown(InstrumentNames.names: _*),
+        TextField(200),
+        DropDown("false", "true"),
+        TextField(500),
+    )
+
+    wbState = wbState.copy(
+        uiFields = Some(uif)
+    )
+
+    wbState.currRunButton.setEnabled(MusicPlayer.started)
+    wbState.currStopButton.setEnabled(false)
+    wbState.currInstrument1Dd.setSelectedItem("Piano")
+    wbState.currInstrument2Dd.setSelectedItem("Guitar (Nylon)")
     ColPanel(
-        RowPanel(currRunButton, RowPanel.horizontalGap(10), currStopButton),
+        RowPanel(wbState.currRunButton, RowPanel.horizontalGap(10), wbState.currStopButton),
         ColPanel.verticalGap(vertGap),
         RowPanel(saveButton, RowPanel.horizontalGap(10), loadButton),
         ColPanel.verticalGap(vertGap),
         RowPanel(exportButton),
         ColPanel.verticalGap(vertGap * 3),
         ColPanel(
-            RowPanel(Label(" Instrument 1:")),
-            RowPanel(currInstrument1Dd),
-            RowPanel(Label(" Instrument 2:")),
-            RowPanel(currInstrument2Dd)
+            RowPanel(Label(" Top Instrument:")),
+            RowPanel(wbState.currInstrument1Dd),
+            RowPanel(Label(" Bottom Instrument:")),
+            RowPanel(wbState.currInstrument2Dd),
+            ColPanel.verticalGap(vertGap * 2),
+            RowPanel(Label(" Tempo:"), RowPanel.horizontalGap(hGap), wbState.currTempoTf),
+            ColPanel.verticalGap(vertGap * 5),
+            RowPanel(Label(" Mark Beats:"), RowPanel.horizontalGap(hGap), wbState.currMarkBeatsDd),
+            ColPanel.verticalGap(vertGap),
+            RowPanel(Label(" Mark Beats Latency:")),
+            RowPanel(wbState.currMLatencyTf)
         ),
-        ColPanel.verticalGap(vertGap * 15),
+        ColPanel.verticalGap(vertGap * 5),
         RowPanel(updateSoundfontButton),
         ColPanel.verticalGap(vertGap),
-        RowPanel(currMsStartBtn, RowPanel.horizontalGap(10), currMsStopBtn),
+        RowPanel(wbState.currMsUpdateBtn),
+        ColPanel.verticalGap(vertGap),
+        RowPanel(wbState.currMsStartBtn, RowPanel.horizontalGap(10), wbState.currMsStopBtn),
     )
 }
 
@@ -404,3 +553,148 @@ def ui = picRowCentered(controls, Picture.hgap(20), scorePicMaker)
 var currentUi = ui
 drawCentered(currentUi)
 println("Note - if the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (and ignore any socket errors while bringing it down). It should work fine after that...")
+updateServerControls()
+
+class Metronome {
+    def picMaker(i: Int) = {
+        val p = Picture.rectangle(30, 30)
+        p.setPenColor(black)
+        p.setFillColor(white)
+        if (i % 4 == 0) {
+            p.setPenThickness(4)
+        }
+        p
+    }
+
+    def rowMaker(n: Int) = for {
+        i <- 0 until n
+    } yield picMaker(i)
+
+    val numTicks = 16
+    val tickPics = rowMaker(numTicks)
+
+    val pic = picRowCentered(
+        Picture.hgap(100),
+        Picture.hgap(6),
+        picRow(tickPics)
+    )
+
+    var idx = 0
+
+    def markPic(i: Int) {
+        val pic = tickPics(i)
+        pic.setFillColor(black)
+    }
+
+    def unmarkPic(i: Int) {
+        val pic = tickPics(i)
+        pic.setFillColor(white)
+    }
+
+    import java.util.concurrent.ScheduledFuture
+    var tickTaskFuture: ScheduledFuture[_] = _
+
+    def prevIndex(i: Int) = {
+        val n = if (i == 0) 16 else i
+        n - 1
+    }
+
+    def nextIndex(i: Int) = {
+        val n = if (i == 15) -1 else i
+        n + 1
+    }
+
+    def start(): Unit = start(0)
+
+    def start(i: Int): Unit = {
+        idx = i
+        val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
+        val tickTask = new Runnable {
+            def run(): Unit = {
+                unmarkPic(prevIndex(idx))
+                markPic(idx)
+                idx = nextIndex(idx)
+            }
+        }
+
+        import java.util.concurrent.TimeUnit
+        tickTaskFuture = MusicPlayer.playerTimer
+            .scheduleAtFixedRate(
+                tickTask,
+                wbState.currMLatencyTf.value,
+                rate,
+                TimeUnit.MILLISECONDS
+            )
+    }
+
+    def stop() {
+        if (tickTaskFuture != null) {
+            tickTaskFuture.cancel(false)
+            tickTaskFuture = null
+            unmarkPic(prevIndex(idx))
+        }
+    }
+}
+
+class GridView(lines: Seq[PhraseLine]) {
+    val barSize = 4
+    def rows = lines.length
+    def cols = lines.head.bars.length * barSize
+
+    def phrases = {
+        val numPhrases = maxRowsOn
+        val buffers = for (n <- 0 until maxRowsOn) yield ArrayBuffer.empty[MusicElem]
+        for (timeStep <- 0 until cols) {
+            //            breakpoint(s"---Looking at Timestep - $timeStep")
+            val noteRows = rowsOn(timeStep)
+            //            breakpoint(s"Num rows on $timeStep")
+            val bufIter = buffers.iterator
+            for (nr <- noteRows) {
+                bufIter.next.append(lines(nr).note)
+            }
+            while (bufIter.hasNext) {
+                bufIter.next.append(Rest())
+            }
+        }
+        buffers.map(Phrase(_))
+    }
+
+    def on(row: Int, col: Int): Boolean = {
+        val line = lines(row)
+        val barNum = col / barSize
+        val inBarNum = col % barSize
+        line.bars(barNum).ons(inBarNum)
+    }
+
+    def rowsOn(col: Int): Seq[Int] = {
+        var ret = Vector.empty[Int]
+        for (row <- 0 until rows) {
+            if (on(row, col)) {
+                ret = ret.appended(row)
+            }
+        }
+        ret
+    }
+
+    def numRowsOn(col: Int): Int = {
+        var num = 0
+        for (row <- 0 until rows) {
+            //            breakpoint(s"Looking at row - $row - (for on)")
+            if (on(row, col)) {
+                num += 1
+            }
+        }
+        num
+    }
+
+    def maxRowsOn: Int = {
+        var max = 0
+        for (col <- 0 until cols) {
+            val rowsOn = numRowsOn(col)
+            if (rowsOn > max) {
+                max = rowsOn
+            }
+        }
+        max
+    }
+}
