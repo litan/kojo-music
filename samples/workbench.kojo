@@ -1,7 +1,14 @@
 import net.kogics.kojo.music._
 import QuickSwara._
 
-val notes = Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
+val bilawalPitches =
+    Seq(48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67, 69, 71, 72)
+val kafiPitches = // flat 3rd and 7th
+    Seq(48, 50, 51, 53, 55, 57, 58, 60, 62, 63, 65, 67, 69, 70, 72)
+val bhairavPitches = // flat 2nd and 6th
+    Seq(48, 49, 52, 53, 55, 56, 59, 60, 61, 64, 65, 67, 68, 71, 72)
+
+val notes = bhairavPitches
 //val notes = Seq(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62)
 //val notes = Seq.tabulate(15)(_ + 50)
 
