@@ -540,7 +540,7 @@ def controlPanel = {
         DropDown(InstrumentNames.names: _*),
         TextField(120),
         DropDown("false", "true"),
-        TextField(450),
+        TextField(500),
     )
 
     wbState = wbState.copy(
@@ -617,11 +617,13 @@ class Metronome {
     def markPic(i: Int) {
         val pic = tickPics(i)
         pic.setFillColor(black)
+        pic.tnode.repaint()
     }
 
     def unmarkPic(i: Int) {
         val pic = tickPics(i)
         pic.setFillColor(white)
+        pic.tnode.repaint()
     }
 
     import java.util.concurrent.ScheduledFuture
