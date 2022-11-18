@@ -8,7 +8,9 @@ val kafiPitches = // flat 3rd and 7th
 val bhairavPitches = // flat 2nd and 6th
     Seq(48, 49, 52, 53, 55, 56, 59, 60, 61, 64, 65, 67, 68, 71, 72)
 
-val notes = bhairavPitches
+val notes = bilawalPitches
+val saregaOn = true
+
 //val notes = Seq(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62)
 //val notes = Seq.tabulate(15)(_ + 50)
 
@@ -35,6 +37,13 @@ case class PhraseLine(note: Note, bars: Seq[Bar]) {
         } yield elem
 
         Phrase(elems)
+    }
+
+    def toggleOn(idx: Int) {
+        val barIdx = idx / 4
+        val idxInBar = idx % 4
+        val bar = bars(barIdx)
+        bar.ons(idxInBar) = !bar.ons(idxInBar)
     }
 }
 
@@ -138,6 +147,23 @@ var wbState = WBState(
     notes.map(p => line(Note(p))),
     None
 )
+
+def turnOnSarega(state: WBState) {
+    val lines = state.lines.drop(7)
+    var idx = 0
+    repeatFor(lines) { line =>
+        line.toggleOn(idx)
+        idx += 1
+    }
+    repeatFor(lines.reverse) { line =>
+        line.toggleOn(idx)
+        idx += 1
+    }
+}
+
+if (saregaOn) {
+    turnOnSarega(wbState)
+}
 
 var metronome = new Metronome()
 
@@ -512,9 +538,9 @@ def controlPanel = {
         stopButton,
         DropDown(InstrumentNames.names: _*),
         DropDown(InstrumentNames.names: _*),
-        TextField(200),
+        TextField(120),
         DropDown("false", "true"),
-        TextField(500),
+        TextField(450),
     )
 
     wbState = wbState.copy(
