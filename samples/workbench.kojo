@@ -655,15 +655,24 @@ class Metronome(barFirst: Boolean) {
 
     def start(i: Int): Unit = {
         idx = i
-        val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt * 4
+        val rate0 = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
+        val rate =
+            if (barFirst) rate0 * barSize
+            else rate0
+
         val tickTask = new Runnable {
             def run(): Unit = {
                 markPic(idx)
                 val cidx = idx
-                schedule(rate / 1000.0 / 8) {
+                val unmarkDelay =
+                    if (barFirst) rate / (1000.0 * barSize * 2)
+                    else rate / (1000.0 * 2)
+                schedule(unmarkDelay) {
                     unmarkPic(cidx)
                 }
-                idx = nextBarIndex(idx)
+                idx =
+                    if (barFirst) nextBarIndex(idx)
+                    else nextIndex(idx)
             }
         }
 
