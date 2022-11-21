@@ -165,7 +165,7 @@ if (saregaOn) {
     turnOnSarega(wbState)
 }
 
-var metronome = new Metronome()
+var metronome = new Metronome(4)
 
 def linesPicMaker = picCol(
     wbState.lines.map(linePic(_))
@@ -377,7 +377,7 @@ def loadButton: Button = Button("Load") {
         )
         oos.close()
         currentUi.erase()
-        metronome = new Metronome()
+        metronome = new Metronome(4)
         currentUi = ui
         drawCentered(currentUi)
         updateServerControls()
@@ -588,7 +588,7 @@ drawCentered(currentUi)
 println("Note - if the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (and ignore any socket errors while bringing it down). It should work fine after that...")
 updateServerControls()
 
-class Metronome {
+class Metronome(barSize: Int) {
     def picMaker(i: Int) = {
         val p = Picture.rectangle(30, 30)
         p.setPenColor(black)
@@ -646,8 +646,12 @@ class Metronome {
         val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
         val tickTask = new Runnable {
             def run(): Unit = {
-                unmarkPic(prevIndex(idx))
-                markPic(idx)
+                if (idx % barSize == 1) {
+                    unmarkPic(prevIndex(idx))
+                }
+                if (idx % barSize == 0) {
+                    markPic(idx)
+                }
                 idx = nextIndex(idx)
             }
         }
