@@ -165,7 +165,7 @@ if (saregaOn) {
     turnOnSarega(wbState)
 }
 
-var metronome = new Metronome(4)
+var metronome = new Metronome(true)
 
 def linesPicMaker = picCol(
     wbState.lines.map(linePic(_))
@@ -377,7 +377,7 @@ def loadButton: Button = Button("Load") {
         )
         oos.close()
         currentUi.erase()
-        metronome = new Metronome(4)
+        metronome = new Metronome(true)
         currentUi = ui
         drawCentered(currentUi)
         updateServerControls()
@@ -588,12 +588,14 @@ drawCentered(currentUi)
 println("Note - if the music server becomes sluggish or dies down after a period of inactivity, just bring the server down and up (and ignore any socket errors while bringing it down). It should work fine after that...")
 updateServerControls()
 
-class Metronome(barSize: Int) {
+class Metronome(barFirst: Boolean) {
+    val barSize = 4
+
     def picMaker(i: Int) = {
         val p = Picture.rectangle(30, 30)
         p.setPenColor(black)
         p.setFillColor(white)
-        if (i % 4 == 0) {
+        if (i % barSize == 0) {
             p.setPenThickness(4)
         }
         p
@@ -630,29 +632,38 @@ class Metronome(barSize: Int) {
     var tickTaskFuture: ScheduledFuture[_] = _
 
     def prevIndex(i: Int) = {
-        val n = if (i == 0) 16 else i
+        val n = if (i == 0) numTicks else i
         n - 1
     }
 
     def nextIndex(i: Int) = {
-        val n = if (i == 15) -1 else i
+        val n = if (i == numTicks - 1) -1 else i
         n + 1
+    }
+
+    def prevBarIndex(i: Int) = {
+        val n = if (i == 0) numTicks else i
+        n - barSize
+    }
+
+    def nextBarIndex(i: Int) = {
+        val n = if (i == numTicks - barSize) -barSize else i
+        n + barSize
     }
 
     def start(): Unit = start(0)
 
     def start(i: Int): Unit = {
         idx = i
-        val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt
+        val rate = math.round(currentScore.durationMillis.toDouble / numTicks).toInt * 4
         val tickTask = new Runnable {
             def run(): Unit = {
-                if (idx % barSize == 1) {
-                    unmarkPic(prevIndex(idx))
+                markPic(idx)
+                val cidx = idx
+                schedule(rate / 1000.0 / 8) {
+                    unmarkPic(cidx)
                 }
-                if (idx % barSize == 0) {
-                    markPic(idx)
-                }
-                idx = nextIndex(idx)
+                idx = nextBarIndex(idx)
             }
         }
 
