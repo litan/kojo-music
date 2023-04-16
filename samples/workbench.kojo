@@ -398,10 +398,6 @@ val exportScriptTemplate = """
 
 cleari()
 
-val notes = Phrase(
-    sa, re
-)
-
 val score =
     %s
     
