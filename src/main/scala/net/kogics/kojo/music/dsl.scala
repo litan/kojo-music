@@ -59,7 +59,8 @@ object Duration {
   val h = HalfNote
   val q = QuarterNote
   val i = EighthNote
-  val ii = SixteenthNote
+  val s = SixteenthNote
+  val t = nthDuration(32)
   def nthDuration(denominator: Double) = NthDuration(denominator)
 }
 
