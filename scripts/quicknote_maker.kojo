@@ -3,6 +3,8 @@ val template = """
   val NXl_h = Note(Pitch.NX, h)
   val NXl = Note(Pitch.NX, q)
   val NXl_i = Note(Pitch.NX, i)
+  val NXl_s = Note(Pitch.NX, s)
+  val NXl_t = Note(Pitch.NX, t)
 """
 
 val noteNames = Seq(

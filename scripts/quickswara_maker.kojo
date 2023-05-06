@@ -1,8 +1,10 @@
 val template = """
-  val NXl_w = Note(Swara.NX, w)
-  val NXl_h = Note(Swara.NX, h)
-  val NXl = Note(Swara.NX, q)
-  val NXl_i = Note(Swara.NX, i)
+  val NXl_w = Note(SwaraPitch.NX, w)
+  val NXl_h = Note(SwaraPitch.NX, h)
+  val NXl = Note(SwaraPitch.NX, q)
+  val NXl_i = Note(SwaraPitch.NX, i)
+  val NXl_s = Note(SwaraPitch.NX, s)
+  val NXl_t = Note(SwaraPitch.NX, t)
 """
 
 val swaraNames = Seq(
