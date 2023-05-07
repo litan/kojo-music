@@ -20,6 +20,8 @@ object QuickNote {
   val r_h = Rest(h)
   val r = Rest(q)
   val r_i = Rest(i)
+  val r_s = Rest(s)
+  val r_t = Rest(t)
 
   // generated via quicknote_maker.kojo
 
