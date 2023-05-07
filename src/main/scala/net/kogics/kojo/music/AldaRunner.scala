@@ -14,6 +14,7 @@
  */
 package net.kogics.kojo.music
 import java.io.File
+
 import scala.sys.process.Process
 
 object AldaRunner {
@@ -30,9 +31,9 @@ object AldaRunner {
   val origPath = System.getenv("PATH")
 
   val aldaEnv = Seq(
-    ("PATH" -> s"$javaDir:$origPath"),
-    ("JAVA_HOME" -> javaHome),
-    ("JAVA_OPTS" -> "-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -Xmx1024m -Xms256m")
+    "PATH" -> s"$javaDir:$origPath",
+    "JAVA_HOME" -> javaHome,
+    "JAVA_OPTS" -> "-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -Xmx1024m -Xms256m"
   )
 
   def isWin = {

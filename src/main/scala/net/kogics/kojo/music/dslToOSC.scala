@@ -14,10 +14,12 @@
  */
 package net.kogics.kojo.music
 
-import com.illposed.osc.{OSCBundle, OSCMessage, OSCPacket}
-
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
+
+import com.illposed.osc.OSCBundle
+import com.illposed.osc.OSCMessage
+import com.illposed.osc.OSCPacket
 
 object OSCBundleGenerator {
   def message(address: String, args: Seq[Any]) =

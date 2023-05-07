@@ -33,11 +33,11 @@ package object music {
   // pulse - number of potential quarter beats in a cycle
   // numBeats - number of actual beats desired based on pulse
   def generateBeats(
-                     drumType: Int,
-                     pulse: Int,
-                     numBeats: Int,
-                     shift0: Int = 0,
-                     durationShortenFactor: Int = 1
+      drumType: Int,
+      pulse: Int,
+      numBeats: Int,
+      shift0: Int = 0,
+      durationShortenFactor: Int = 1
   ): collection.Seq[MusicElem] = {
     generateElems(
       { d => Beat(drumType, d) },
@@ -49,21 +49,21 @@ package object music {
   }
 
   def generateNotes(
-                     pitch: Int,
-                     pulse: Int,
-                     numBeats: Int,
-                     shift0: Int = 0,
-                     durationShortenFactor: Int = 1
+      pitch: Int,
+      pulse: Int,
+      numBeats: Int,
+      shift0: Int = 0,
+      durationShortenFactor: Int = 1
   ): collection.Seq[MusicElem] = {
     generateElems({ d => Note(pitch, d) }, pulse, numBeats, shift0, durationShortenFactor)
   }
 
   def generateElems(
-                     elemMaker: Duration => MusicElem,
-                     pulse: Int,
-                     numBeats: Int,
-                     shift0: Int,
-                     durationShortenFactor: Int
+      elemMaker: Duration => MusicElem,
+      pulse: Int,
+      numBeats: Int,
+      shift0: Int,
+      durationShortenFactor: Int
   ): collection.Seq[MusicElem] = {
     val realPulse = Util.lcm(pulse * durationShortenFactor, numBeats)
     val pulseMultiplier = realPulse / pulse
@@ -77,7 +77,8 @@ package object music {
     (0 until realPulse).foreach { idx =>
       if (idx % interval == 0) {
         buf.append(beat)
-      } else {
+      }
+      else {
         buf.append(rest)
 
       }
@@ -87,7 +88,8 @@ package object music {
       val size = buf.size
       val effectiveShift = (shift0 % size) * pulseMultiplier
       buf.drop(size - effectiveShift) ++ buf.take(size - effectiveShift)
-    } else {
+    }
+    else {
       val size = buf.size
       val effectiveShift = -(shift0 % size) * pulseMultiplier
       buf.drop(effectiveShift) ++ buf.take(effectiveShift)

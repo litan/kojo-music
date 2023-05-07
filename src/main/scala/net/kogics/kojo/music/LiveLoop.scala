@@ -1,6 +1,8 @@
 package net.kogics.kojo.music
 
-import java.util.concurrent.{ConcurrentHashMap, ScheduledFuture, TimeUnit}
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 object LiveLoop {
   import MusicPlayer.playerTimer
@@ -32,7 +34,8 @@ object LiveLoop {
         val delay = if (firstSchedule) {
           firstSchedule = false
           math.max((rate * 0.8).toInt, rate - safeLatencyDelta)
-        } else
+        }
+        else
           rate
 
         val loopTaskFuture = playerTimer.schedule(

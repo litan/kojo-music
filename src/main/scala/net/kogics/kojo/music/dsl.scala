@@ -149,10 +149,11 @@ sealed abstract class Part {
   def showDurationMillis(tempo: Double): Unit = {
     println("---Part phrase millis:")
     var max = 0
-    phrases.zipWithIndex.foreach { case (p, i) =>
-      val dm = p.durationMillis(tempo)
-      max = math.max(dm, max)
-      println(s"Phrase $i - $dm")
+    phrases.zipWithIndex.foreach {
+      case (p, i) =>
+        val dm = p.durationMillis(tempo)
+        max = math.max(dm, max)
+        println(s"Phrase $i - $dm")
     }
     println(s"Part millis max - $max")
   }
@@ -185,8 +186,9 @@ case class Score(tempo: Double, parts: Part*) {
     if (partDurationMillis.distinct.length != 1) {
       println("Score Warning - part duration millis are not the same!")
       println("Part duration millis:")
-      partDurationMillis.zipWithIndex.foreach { case (d, i) =>
-        println(s"Part $i - $d")
+      partDurationMillis.zipWithIndex.foreach {
+        case (d, i) =>
+          println(s"Part $i - $d")
       }
       parts.foreach(_.showDurationMillis(tempo))
     }

@@ -1,11 +1,16 @@
 package example
-import net.kogics.kojo.music.QuickSwara._
 import net.kogics.kojo.music._
+import net.kogics.kojo.music.QuickSwara._
 
 object Slur1 {
   def main(args: Array[String]): Unit = {
     val notes = Phrase(
-      sa, re, ga, ma, slur(sa, re, ga, ma), pa
+      sa,
+      re,
+      ga,
+      ma,
+      slur(sa, re, ga, ma),
+      pa
     )
 
     val score =

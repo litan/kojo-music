@@ -13,21 +13,19 @@
  *
  */
 package net.kogics.kojo.music
-import com.illposed.osc.OSCBundle
-import com.illposed.osc.transport.{
-  NetworkProtocol,
-  OSCPortOut,
-  OSCPortOutBuilder
-}
-
 import java.io.IOException
-import java.net.{InetAddress, InetSocketAddress, Socket}
-import java.util.concurrent.{
-  Executors,
-  ScheduledExecutorService,
-  ScheduledFuture,
-  TimeUnit
-}
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
+
+import com.illposed.osc.transport.NetworkProtocol
+import com.illposed.osc.transport.OSCPortOut
+import com.illposed.osc.transport.OSCPortOutBuilder
+import com.illposed.osc.OSCBundle
 
 object MusicPlayer {
   val protocol = NetworkProtocol.TCP
@@ -52,14 +50,16 @@ object MusicPlayer {
         notConnected = false
         println("Server is up and listening.")
         Thread.sleep(500)
-      } catch {
+      }
+      catch {
         case _: IOException =>
           currTry += 1
           if (currTry == maxTries) {
             println("Unable to connect to the server. Giving up.")
           }
           Thread.sleep(1000)
-      } finally {
+      }
+      finally {
         try { cs.close() }
         catch { case _: Throwable => }
       }
@@ -78,10 +78,12 @@ object MusicPlayer {
     try {
       cs.connect(serverAddress)
       true
-    } catch {
+    }
+    catch {
       case ioe: IOException =>
         false
-    } finally {
+    }
+    finally {
       try { cs.close() }
       catch { case _: Throwable => }
     }
@@ -105,7 +107,8 @@ object MusicPlayer {
     if (serverRunning) {
       serverOwner = false
       println("Music Server already running. Connecting...")
-    } else {
+    }
+    else {
       serverOwner = true
       AldaRunner.runServer()
       println("Launched Music Server. Waiting...")
@@ -131,7 +134,8 @@ object MusicPlayer {
         playHelper(OSCBundleGenerator.shutdownOSCBundle(0))
         AldaRunner.onStopServer()
         serverOwner = false
-      } else {
+      }
+      else {
         println("Not stopping Music Server as we did not start it.")
       }
       started = false
@@ -144,7 +148,8 @@ object MusicPlayer {
     try {
       client.send(bundle)
       true
-    } catch {
+    }
+    catch {
       case e: Throwable =>
         println("Problem talking to Alda music player - " + e.getMessage)
         false
@@ -184,7 +189,8 @@ object MusicPlayer {
       val delay = if (firstSchedule) {
         firstSchedule = false
         (rate * 0.8).toInt
-      } else
+      }
+      else
         rate
 
       loopTaskFuture = playerTimer.schedule(
