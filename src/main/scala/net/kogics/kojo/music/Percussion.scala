@@ -14,7 +14,7 @@
  */
 package net.kogics.kojo.music
 
-object Drum {
+object Percussion {
   // constants from jmusic (https://explodingart.com/jmusic/index.html)
   val ACOUSTIC_BASS_DRUM = 35
   val BASS_DRUM_1 = 36
