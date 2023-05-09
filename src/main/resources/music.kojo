@@ -50,6 +50,10 @@ val stopButton = Button("Stop Playing") {
     stopMusic()
 }
 
+def updateMusicServerControls() {
+    updateServerControls()
+}
+
 def updateServerControls() {
     val running = MusicPlayer.queryServerStatus
     startMusicServerButton.setEnabled(!running)
@@ -76,6 +80,10 @@ val controlPanel = {
 }
 
 val controls = Picture.widget(controlPanel)
+
+def showMusicServerControls() {
+    showServerControls()
+}
 
 def showServerControls() {
     val cb = canvasBounds

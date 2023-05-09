@@ -9,7 +9,7 @@ val template = """
 
 val percussionTypes = Seq(
     "abd" -> "ACOUSTIC_BASS_DRUM",
-    "bd" -> "BASS_DRUM_1",
+    "bdr" -> "BASS_DRUM_1",
     "stk" -> "SIDE_STICK",
     "snr" -> "ACOUSTIC_SNARE",
     "clp" -> "HAND_CLAP",
@@ -21,8 +21,8 @@ val percussionTypes = Seq(
     "swh" -> "SHORT_WHISTLE",
     "lwh" -> "LONG_WHISTLE",
     "cla" -> "CLAVES",
-    "HWB" -> "HI_WOOD_BLOCK",
-    "LWB" -> "LOW_WOOD_BLOCK",
+    "hwb" -> "HI_WOOD_BLOCK",
+    "lwb" -> "LOW_WOOD_BLOCK",
 )
 
 clearOutput()
