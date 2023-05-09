@@ -2,7 +2,7 @@
 
 cleari()
 
-val pbd_x = Beat(Drum.ACOUSTIC_BASS_DRUM, nthDuration(15))
+val pbd_x = Beat(Percussion.ACOUSTIC_BASS_DRUM, nthDuration(15))
 
 val beats = Phrase(
     Seq.fill(60)(pbd_x)

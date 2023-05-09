@@ -13,11 +13,11 @@ def score =
     Score(
         randomFrom(tempos),
         PercussionPart(
-            Phrase(generateBeats(Drum.CLAVES, pulse, 1, 0, 1)),
-            Phrase(generateBeats(Drum.LOW_CONGA, pulse, 4, 0)),
-            Phrase(generateBeats(Drum.LOW_BONGO, pulse, 4, 3)),
-            Phrase(generateBeats(Drum.HIGH_TOM, pulse, 2, 1, 1)),
-            Phrase(generateBeats(Drum.HI_MID_TOM, pulse, 2, 2, 1)),
+            Phrase(generateBeats(Percussion.CLAVES, pulse, 1, 0, 1)),
+            Phrase(generateBeats(Percussion.LOW_CONGA, pulse, 4, 0)),
+            Phrase(generateBeats(Percussion.LOW_BONGO, pulse, 4, 3)),
+            Phrase(generateBeats(Percussion.HIGH_TOM, pulse, 2, 1, 1)),
+            Phrase(generateBeats(Percussion.HI_MID_TOM, pulse, 2, 2, 1)),
         ),
         InstrumentPart(
             randomFrom(instruments),

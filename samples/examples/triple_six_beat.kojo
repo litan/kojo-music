@@ -2,8 +2,8 @@
 
 cleari()
 
-val pbd_12 = Beat(Drum.ACOUSTIC_BASS_DRUM, nthDuration(12))
-val pbd_24 = Beat(Drum.ACOUSTIC_BASS_DRUM, nthDuration(24))
+val pbd_12 = Beat(Percussion.ACOUSTIC_BASS_DRUM, nthDuration(12))
+val pbd_24 = Beat(Percussion.ACOUSTIC_BASS_DRUM, nthDuration(24))
 
 def triple = MultiBeat(Seq.fill(3)(pbd_12))
 def six = MultiBeat(Seq.fill(6)(pbd_24))

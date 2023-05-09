@@ -22,12 +22,12 @@ val score =
             Phrase(generateNotes(Pitch.G4, pulse, 4, -1)),
         ),
         PercussionPart(
-            Phrase(generateBeats(Drum.CLAVES, pulse, 1)),
-            Phrase(generateBeats(Drum.ACOUSTIC_BASS_DRUM, pulse, 7, 0)),
-            Phrase(generateBeats(Drum.ACOUSTIC_BASS_DRUM, pulse, 4, 0)),
-            Phrase(generateBeats(Drum.HIGH_TOM, pulse, 4, 2)),
-            Phrase(generateBeats(Drum.HAND_CLAP, pulse, 2, -3)),
-            Phrase(generateBeats(Drum.HI_BONGO, pulse, 4, -1)),
+            Phrase(generateBeats(Percussion.CLAVES, pulse, 1)),
+            Phrase(generateBeats(Percussion.ACOUSTIC_BASS_DRUM, pulse, 7, 0)),
+            Phrase(generateBeats(Percussion.ACOUSTIC_BASS_DRUM, pulse, 4, 0)),
+            Phrase(generateBeats(Percussion.HIGH_TOM, pulse, 4, 2)),
+            Phrase(generateBeats(Percussion.HAND_CLAP, pulse, 2, -3)),
+            Phrase(generateBeats(Percussion.HI_BONGO, pulse, 4, -1)),
         )
     )
 
