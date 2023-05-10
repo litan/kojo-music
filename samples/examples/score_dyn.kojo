@@ -18,6 +18,6 @@ val scoreMaker = new ScoreGenerator {
     }
 }
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.playLoop(scoreMaker)
-updateServerControls()
+updateMusicServerControls()

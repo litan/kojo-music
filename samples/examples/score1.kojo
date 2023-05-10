@@ -23,7 +23,7 @@ val score2 =
         InstrumentPart(PIANO, notes)
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.play(score)
 pause(2)
 MusicPlayer.playAlso(score2)

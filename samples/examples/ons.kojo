@@ -14,7 +14,6 @@ val score =
         InstrumentPart(Instrument.PAN_FLUTE, notes)
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.playLoop(score)
-updateServerControls()
-println(notes.durationDecimalForm)
+updateMusicServerControls()

@@ -34,6 +34,6 @@ val scoreGen = new ScoreGenerator {
 }
 
 clearOutput()
-showServerControls()
+showMusicServerControls()
 MusicPlayer.playLiveLoop(scoreGen)
-updateServerControls()
+updateMusicServerControls()

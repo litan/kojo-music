@@ -12,7 +12,7 @@ val score =
         InstrumentPart(Instrument.PIANO_ACCORDION, notes)
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.play(score)
-updateServerControls()
+updateMusicServerControls()
 println(notes.durationDecimalForm)

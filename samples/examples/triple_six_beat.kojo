@@ -23,6 +23,6 @@ val score =
         InstrumentPart(PIANO, notes)
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.playLoop(score)
-updateServerControls()
+updateMusicServerControls()

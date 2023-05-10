@@ -12,6 +12,6 @@ val score =
         InstrumentPart(Instrument.PAN_FLUTE, notes)
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.play(score)
-updateServerControls()
+updateMusicServerControls()

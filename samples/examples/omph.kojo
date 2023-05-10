@@ -33,6 +33,6 @@ val score =
         )
     )
 
-showServerControls()
+showMusicServerControls()
 MusicPlayer.playLiveLoop(score)
-updateServerControls()
+updateMusicServerControls()
