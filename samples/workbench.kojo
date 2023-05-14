@@ -401,9 +401,9 @@ cleari()
 val score =
     %s
     
-showServerControls()
+showMusicServerControls()
 MusicPlayer.play(score)
-updateServerControls()
+updateMusicServerControls()
 """.trim
 
 val exportScoreTemplate = """
