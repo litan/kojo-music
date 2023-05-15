@@ -28,12 +28,17 @@ object LiveLoop {
 
       scoreGen.put(name, scoreGenerator0)
       var firstSchedule = true
-      val safeLatencyDelta = 900 // ms
+      val latencyDelta = 150 // ms
 
       def scheduleNextRun(rate: Int): Unit = {
         val delay = if (firstSchedule) {
           firstSchedule = false
-          math.max((rate * 0.8).toInt, rate - safeLatencyDelta)
+          if (rate < 2 * latencyDelta) {
+            (rate * 0.8).toInt
+          }
+          else {
+            rate - latencyDelta
+          }
         }
         else
           rate

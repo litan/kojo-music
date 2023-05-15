@@ -1,7 +1,7 @@
 import Dependencies._
 
 ThisBuild / scalaVersion := "2.13.6"
-ThisBuild / version := "0.2"
+ThisBuild / version := "0.3"
 ThisBuild / organization := "net.kogics"
 ThisBuild / organizationName := "kojo"
 
