@@ -3,8 +3,10 @@ package net.kogics.kojo.music
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.Calendar
 
 object LiveLoop {
+  var debugLog = false // can be changed from a running Kojo instance
   import MusicPlayer.playerTimer
   val scoreGen = new ConcurrentHashMap[String, ScoreGenerator]()
   val scoreTask = new ConcurrentHashMap[String, ScheduledFuture[_]]()
@@ -19,10 +21,21 @@ object LiveLoop {
   private def loopPlaying(name: String) = scoreGen.containsKey(name)
   private def scoreGenerator(name: String) = scoreGen.get(name)
 
+  private def logDebug(msg: => String): Unit = {
+    if (debugLog) {
+      val calendar = Calendar.getInstance()
+      val prefix =
+        s"${calendar.get(Calendar.HOUR)}:${calendar.get(Calendar.MINUTE)}" +
+          s":${calendar.get(Calendar.SECOND)}:${calendar.get(Calendar.MILLISECOND)}"
+      println(s"$prefix - $msg")
+    }
+  }
+
   private[music] def play(name: String, scoreGenerator0: ScoreGenerator): Unit =
     synchronized {
       if (loopPlaying(name)) {
         scoreGen.put(name, scoreGenerator0)
+        logDebug("Updated live-loop.")
         return
       }
 
@@ -43,6 +56,7 @@ object LiveLoop {
         else
           rate
 
+        logDebug(s"Scheduling next run with delay - $delay ms.")
         val loopTaskFuture = playerTimer.schedule(
           musicTask,
           delay,
